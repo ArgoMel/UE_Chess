@@ -60,7 +60,10 @@ void ABoard::CreateBoard()
 				(x % 2 == 1 && y % 2 == 1))
 			{
 				boardSquare->SquareColor = EPlayerColor::Black;
+				boardSquare->SetSquareColor();
 			}
+			boardSquare->AttachToComponent(Billboard,
+				FAttachmentTransformRules::KeepWorldTransform);
 		}
 	}
 }
