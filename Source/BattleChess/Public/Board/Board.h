@@ -47,6 +47,9 @@ public:
 	FResetAllSquares ResetAllSquares;
 
 public:
+	UFUNCTION(CallInEditor, Category = "Editor")
+	void CreateBoard();
+
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 	void Initialize();
