@@ -15,6 +15,9 @@ class BATTLECHESS_API AGM_Chess : public AGameModeBase
 {
 	GENERATED_BODY()
 public:
+	AGM_Chess();
+
+public:
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
 	TObjectPtr<USceneComponent> DefaultSceneRoot;

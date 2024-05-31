@@ -1,4 +1,12 @@
 #include "GM_Chess.h"
+#include "PC_Chess.h"
+#include "PlayerPawn.h"
+
+AGM_Chess::AGM_Chess()
+{
+	DefaultPawnClass = APlayerPawn::StaticClass();
+	PlayerControllerClass = APC_Chess::StaticClass();
+}
 
 void AGM_Chess::Initialize()
 {
@@ -84,7 +92,8 @@ void AGM_Chess::ActivateTeleport(int32 X, int32 Y)
 {
 }
 
-void AGM_Chess::GetActiveChessPiecesByColor(EPlayerColor Color, TArray<AChessPiece*>& ChessPieces, TArray<AChessPiece*> ActiveChessPieces)
+void AGM_Chess::GetActiveChessPiecesByColor(EPlayerColor Color, TArray<AChessPiece*>& ChessPieces, 
+	TArray<AChessPiece*> ActiveChessPieces)
 {
 }
 
@@ -92,15 +101,23 @@ void AGM_Chess::GetGameStatus(bool& IsCheckMate, bool& IsStaleMate, FChessPlayer
 {
 }
 
-void AGM_Chess::PersistMove(AChessPiece* ChessPiece, bool IsCapture, bool IsCastle, bool IsQueenSideCastle, FString ChessPieceNotation, FString CaptureNotation, FString SquareNotation, FString CheckNotation, FString FinalNotation, bool bIsCapture, bool bIsCastle, bool bIsQueenSideCastle, bool bIsInCheck, AChessPiece* lChessPiece)
+void AGM_Chess::PersistMove(AChessPiece* ChessPiece, bool IsCapture, bool IsCastle, 
+	bool IsQueenSideCastle, FString ChessPieceNotation, FString CaptureNotation, 
+	FString SquareNotation, FString CheckNotation, FString FinalNotation, 
+	bool bIsCapture, bool bIsCastle, bool bIsQueenSideCastle, bool bIsInCheck, 
+	AChessPiece* lChessPiece)
 {
 }
 
-void AGM_Chess::CreateNotation(FMoves MoveData, FString& Notation, FString MoveNotation, FString ChessPiece, FString Square, bool bIsCheck, bool bIsCapture, bool bIsKingsideCastle, bool bIsQueensideCastle)
+void AGM_Chess::CreateNotation(FMoves MoveData, FString& Notation, FString MoveNotation, 
+	FString ChessPiece, FString Square, bool bIsCheck, bool bIsCapture, 
+	bool bIsKingsideCastle, bool bIsQueensideCastle)
 {
 }
 
-void AGM_Chess::SaveMoveData(int32 Count, EPlayerColor Color, FString ChessPieceNotation, FString PreviousSquare, FString NewSquare, bool IsCapture, bool IsKingsideCastle, bool IsQueenSideCastle)
+void AGM_Chess::SaveMoveData(int32 Count, EPlayerColor Color, FString ChessPieceNotation, 
+	FString PreviousSquare, FString NewSquare, bool IsCapture, bool IsKingsideCastle, 
+	bool IsQueenSideCastle)
 {
 }
 
@@ -152,7 +169,8 @@ void AGM_Chess::RemoveOccupant(int32 X, int32 Y, bool& IsValid)
 {
 }
 
-void AGM_Chess::GetOccupant(int32 X, int32 Y, EPlayerColor Color, AChessPiece*& Occupant, bool& IsOccupied, bool& IsOccupiedByFriend, bool& IsValidSquare)
+void AGM_Chess::GetOccupant(int32 X, int32 Y, EPlayerColor Color, AChessPiece*& Occupant, 
+	bool& IsOccupied, bool& IsOccupiedByFriend, bool& IsValidSquare)
 {
 }
 
@@ -176,31 +194,38 @@ void AGM_Chess::GetActiveKing(AChessPiece*& ActiveKing)
 {
 }
 
-void AGM_Chess::EvaluateDiagonalSquares(int32 X, int32 Y, EPlayerColor Color, bool& IsAttackable, int32 TempX, int32 TempY, EPlayerColor TempColor)
+void AGM_Chess::EvaluateDiagonalSquares(int32 X, int32 Y, EPlayerColor Color, bool& IsAttackable, 
+	int32 TempX, int32 TempY, EPlayerColor TempColor)
 {
 }
 
-void AGM_Chess::EvaluateHorizontalSquares(int32 X, int32 Y, EPlayerColor Color, bool& IsAttackable, int32 TempX, int32 TempY, EPlayerColor TempColor)
+void AGM_Chess::EvaluateHorizontalSquares(int32 X, int32 Y, EPlayerColor Color, bool& IsAttackable, 
+	int32 TempX, int32 TempY, EPlayerColor TempColor)
 {
 }
 
-void AGM_Chess::EvaluateVerticalSquares(int32 X, int32 Y, EPlayerColor Color, bool& IsAttackable, int32 TempX, int32 TempY, EPlayerColor TempColor)
+void AGM_Chess::EvaluateVerticalSquares(int32 X, int32 Y, EPlayerColor Color, bool& IsAttackable, 
+	int32 TempX, int32 TempY, EPlayerColor TempColor)
 {
 }
 
-void AGM_Chess::EvaluateForKnights(int32 X, int32 Y, EPlayerColor Color, bool& IsAttackable, int32 TempX, int32 TempY, EPlayerColor TempColor)
+void AGM_Chess::EvaluateForKnights(int32 X, int32 Y, EPlayerColor Color, bool& IsAttackable, 
+	int32 TempX, int32 TempY, EPlayerColor TempColor)
 {
 }
 
-void AGM_Chess::EvaluateKnightSquare(int32 X, int32 Y, int32 XIncr, int32 YIncr, EPlayerColor Color, bool& IsAttackable, int32 TempX, int32 TempY, EPlayerColor TempColor)
+void AGM_Chess::EvaluateKnightSquare(int32 X, int32 Y, int32 XIncr, int32 YIncr, EPlayerColor Color, 
+	bool& IsAttackable, int32 TempX, int32 TempY, EPlayerColor TempColor)
 {
 }
 
-void AGM_Chess::EvalScquareForCheckStatus(int32 X, int32 Y, EPlayerColor Color, bool& IsEmpty, bool& IsCheckable, int32 TempX, int32 TempY, EPlayerColor TempColor, bool IsInCheck)
+void AGM_Chess::EvalScquareForCheckStatus(int32 X, int32 Y, EPlayerColor Color, bool& IsEmpty, 
+	bool& IsCheckable, int32 TempX, int32 TempY, EPlayerColor TempColor, bool IsInCheck)
 {
 }
 
-void AGM_Chess::EvaluationLoop(int32 X, int32 Y, int32 XInc, int32 YInc, EPlayerColor Color, bool& IsCheckablePath, int32 TempX, int32 TempY, bool CanContinue, bool IsCheckable)
+void AGM_Chess::EvaluationLoop(int32 X, int32 Y, int32 XInc, int32 YInc, EPlayerColor Color, 
+	bool& IsCheckablePath, int32 TempX, int32 TempY, bool CanContinue, bool IsCheckable)
 {
 }
 
