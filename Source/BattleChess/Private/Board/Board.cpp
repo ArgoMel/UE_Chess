@@ -1,8 +1,13 @@
 #include "Board/Board.h"
+#include "Components/BillboardComponent.h"
 
 ABoard::ABoard()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	Billboard = CreateDefaultSubobject<UBillboardComponent>(TEXT("Billboard"));
+	SetRootComponent(Billboard);
+	Billboard->SetVisibility(false);
 }
 
 void ABoard::BeginPlay()

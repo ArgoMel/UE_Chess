@@ -19,10 +19,10 @@ protected:
 public:
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
-	TObjectPtr<UStaticMeshComponent> Board;
+	TObjectPtr<UBillboardComponent> Billboard;
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
-	TObjectPtr<UBillboardComponent> Billboard;
+	TObjectPtr<UStaticMeshComponent> Board;
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Reference", meta = (MultiLine = "true"))
