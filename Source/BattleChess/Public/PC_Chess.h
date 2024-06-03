@@ -1,6 +1,6 @@
 #pragma once
 #include "CoreMinimal.h"
-#include "GameFramework/PlayerController.h"
+#include "PC_Input.h"
 #include "PC_Chess.generated.h"
 
 class AGM_Chess;
@@ -8,9 +8,14 @@ class UUI_Main;
 class UUI_Start;
 
 UCLASS()
-class BATTLECHESS_API APC_Chess : public APlayerController
+class BATTLECHESS_API APC_Chess : public APC_Input
 {
 	GENERATED_BODY()
+public:
+	APC_Chess();
+protected:
+	virtual void SetupInputComponent() override;
+
 public:
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "References", meta = (MultiLine = "true"))
@@ -25,6 +30,12 @@ public:
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "GamePlay", meta = (MultiLine = "true"))
 	FText Message;
+
+protected:
+	UFUNCTION()
+	void MoveChessPieceStarted();
+	UFUNCTION()
+	void CameraRotationTriggered(const FInputActionValue& Value);
 
 public:
 	/** Please add a function description */

@@ -2,6 +2,11 @@
 #include "CoreMinimal.h"
 #include "BattleChess.generated.h"
 
+namespace ChessInfo
+{
+	constexpr int32 MaxPlayer = 2;
+}
+
 #pragma region LoadAsset
 /*    Object Asset을 받습니다.
 *    RETURN_POINTER : 받을 포인터

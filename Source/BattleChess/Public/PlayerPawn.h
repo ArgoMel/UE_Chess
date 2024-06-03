@@ -16,13 +16,10 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+private:
+	EPlayerColor mPlayerColor;
+
 public:
-	/** Please add a variable description */
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
-	TObjectPtr<UCameraComponent> Camera;
-	/** Please add a variable description */
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
-	TObjectPtr<UBillboardComponent> CameraAzimuth;
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
 	TObjectPtr<UBillboardComponent> Root;
@@ -32,22 +29,31 @@ public:
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
 	TObjectPtr<UBillboardComponent> Black;
+	/** Please add a variable description */
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
+	TObjectPtr<UBillboardComponent> CameraAzimuth;
+	/** Please add a variable description */
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
+	TObjectPtr<UCameraComponent> Camera;
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "디폴트", meta = (MultiLine = "true"))
-	FChessPlayer Player0;
-	/** Please add a variable description */
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "디폴트", meta = (MultiLine = "true"))
-	FChessPlayer Player1;
+	TArray<FChessPlayer> Players;
+
+private:
+	UFUNCTION()
+	void SetPlayerCameraFinish();
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "Event")
+	void SetPlayerCamera(EPlayerColor Color);
+
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "GamePlay")
 	void GetPlayerByIndex(int32 PlayerIndex, FChessPlayer& Player);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "GamePlay")
-	void GetPlayerByColor(EPlayerColor PlayerColor, FChessPlayer& Player, 
-		FChessPlayer PlayerA, FChessPlayer PlayerB);
+	void GetPlayerByColor(EPlayerColor PlayerColor, FChessPlayer& Player);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "GamePlay")
 	void SetPlayerColor(int32 PlayerIndex, EPlayerColor PlayerColor);
@@ -68,5 +74,5 @@ public:
 	void SetHasLegalMovesFlag(int32 PlayerIndex, bool HasLegalMoves);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
-	void RotateCamera(double Axis);
+	void RotateCamera(float Axis);
 };

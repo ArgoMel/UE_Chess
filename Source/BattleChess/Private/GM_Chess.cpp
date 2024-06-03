@@ -17,10 +17,15 @@ AGM_Chess::AGM_Chess()
 	DeadPoolIndex = 0;
 }
 
-void AGM_Chess::StartPlay()
+void AGM_Chess::BeginPlay()
 {
-	Super::StartPlay();
+	Super::BeginPlay();
 	Initialize();
+}
+
+void AGM_Chess::ProcessMove()
+{
+	ChangeActivePlayer();
 }
 
 void AGM_Chess::Initialize()
@@ -79,7 +84,7 @@ void AGM_Chess::SetChessPiecesRef()
 	}
 	for (auto& chessPiece : ChessPiecesRef)
 	{
-		ProcessChessPiece(chessPiece,nullptr);
+		ProcessChessPiece(chessPiece);
 	}
 }
 
@@ -87,14 +92,17 @@ void AGM_Chess::SetupDeadPoolRefs()
 {
 }
 
-void AGM_Chess::ProcessChessPiece(AChessPiece* ChessPiece, AChessPiece* TempChessPiece)
+void AGM_Chess::ProcessChessPiece(AChessPiece* ChessPiece)
 {
-	TempChessPiece = ChessPiece;
-	TempChessPiece->Initialize();
+	AChessPiece* tempChessPiece = ChessPiece;
+	tempChessPiece->Initialize();
 }
 
 void AGM_Chess::SetPlayerCamera()
 {
+	FChessPlayer chessPlayer;
+	PlayerRef->GetPlayerByIndex(ActivePlayer, chessPlayer);
+	PlayerRef->SetPlayerCamera(chessPlayer.Color);
 }
 
 void AGM_Chess::GetActivePlayer(FChessPlayer& Player)
@@ -115,14 +123,17 @@ void AGM_Chess::GetPlayerByIndex(int32 PlayerIndex, FChessPlayer& Player)
 
 void AGM_Chess::ChangeActivePlayer()
 {
+	ActivePlayer = (ActivePlayer + 1)%ChessInfo::MaxPlayer;
+	SetPlayerCamera();
 }
 
 void AGM_Chess::GetActivePlayerMoveCount(int32& ActivePlayerMoveCount)
 {
 }
 
-void AGM_Chess::RotatePlayerCamera(double Axis)
+void AGM_Chess::RotatePlayerCamera(float Axis)
 {
+	PlayerRef->RotateCamera(Axis);
 }
 
 void AGM_Chess::StartGame(FText PlayerAName, FText PlayerBName, int32 PlayerAIndex, int32 PlayerBIndex)

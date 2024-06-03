@@ -17,12 +17,12 @@ class BATTLECHESS_API AGM_Chess : public AGameModeBase
 public:
 	AGM_Chess();
 protected:
-	virtual void StartPlay() override;
+	virtual void BeginPlay() override;
 
 public:
 	/** Please add a variable description */
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
-	TObjectPtr<UAudioComponent> BeginPlay;
+	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
+	//TObjectPtr<UAudioComponent> BeginPlay;
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "References", meta = (MultiLine = "true"))
@@ -78,6 +78,9 @@ public:
 	int32 DeadPoolIndex;
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "Event")
+	void ProcessMove();
+
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 	void Initialize();
@@ -98,7 +101,7 @@ public:
 	void SetupDeadPoolRefs();
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Setup")
-	void ProcessChessPiece(AChessPiece* ChessPiece, AChessPiece* TempChessPiece);
+	void ProcessChessPiece(AChessPiece* ChessPiece);
 
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Player")
@@ -123,7 +126,7 @@ public:
 	void GetActivePlayerMoveCount(int32& ActivePlayerMoveCount);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Player")
-	void RotatePlayerCamera(double Axis);
+	void RotatePlayerCamera(float Axis);
 
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
