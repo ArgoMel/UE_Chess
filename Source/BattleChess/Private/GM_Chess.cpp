@@ -1,31 +1,86 @@
 #include "GM_Chess.h"
 #include "PC_Chess.h"
 #include "PlayerPawn.h"
+#include "Board/Board.h"
+#include "ChessPieces/ChessPiece.h"
+#include <Kismet/GameplayStatics.h>
 
 AGM_Chess::AGM_Chess()
 {
+	PrimaryActorTick.bCanEverTick = false;
+
 	DefaultPawnClass = APlayerPawn::StaticClass();
 	PlayerControllerClass = APC_Chess::StaticClass();
+
+	ActivePlayer = 0;
+	MoveCount = 0;
+	DeadPoolIndex = 0;
+}
+
+void AGM_Chess::StartPlay()
+{
+	Super::StartPlay();
+	Initialize();
 }
 
 void AGM_Chess::Initialize()
 {
+	SetPlayerControllerRef();
+	SetPlayerRef();
+	SetBoardRef();
+	SetChessPiecesRef();
 }
 
 void AGM_Chess::SetPlayerControllerRef()
 {
+	if (IsValid(PlayerControllerRef))
+	{
+		return;
+	}
+	PlayerControllerRef = Cast<APC_Chess>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	PlayerControllerRef->Initialize();
 }
 
 void AGM_Chess::SetPlayerRef()
 {
+	if (IsValid(PlayerRef))
+	{
+		return;
+	}
+	PlayerRef = Cast<APlayerPawn>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 }
 
 void AGM_Chess::SetBoardRef()
 {
+	if (IsValid(BoardRef))
+	{
+		return;
+	}
+	BoardRef = Cast<ABoard>(UGameplayStatics::GetActorOfClass(GetWorld(), ABoard::StaticClass()));
+	BoardRef->Initialize();
 }
 
 void AGM_Chess::SetChessPiecesRef()
 {
+	if (!ChessPiecesRef.IsEmpty())
+	{
+		return;
+	}
+	TArray<AActor*> actors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AChessPiece::StaticClass(), actors);
+	for(auto& actor: actors)
+	{
+		AChessPiece* chessPiece = Cast<AChessPiece>(actor);
+		if(!IsValid(chessPiece))
+		{
+			continue;
+		}
+		ChessPiecesRef.Add(chessPiece);
+	}
+	for (auto& chessPiece : ChessPiecesRef)
+	{
+		ProcessChessPiece(chessPiece,nullptr);
+	}
 }
 
 void AGM_Chess::SetupDeadPoolRefs()
@@ -34,6 +89,8 @@ void AGM_Chess::SetupDeadPoolRefs()
 
 void AGM_Chess::ProcessChessPiece(AChessPiece* ChessPiece, AChessPiece* TempChessPiece)
 {
+	TempChessPiece = ChessPiece;
+	TempChessPiece->Initialize();
 }
 
 void AGM_Chess::SetPlayerCamera()

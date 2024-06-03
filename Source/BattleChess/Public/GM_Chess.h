@@ -16,11 +16,10 @@ class BATTLECHESS_API AGM_Chess : public AGameModeBase
 	GENERATED_BODY()
 public:
 	AGM_Chess();
+protected:
+	virtual void StartPlay() override;
 
 public:
-	/** Please add a variable description */
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
-	TObjectPtr<USceneComponent> DefaultSceneRoot;
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
 	TObjectPtr<UAudioComponent> BeginPlay;
