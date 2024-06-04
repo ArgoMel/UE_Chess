@@ -1,7 +1,11 @@
 #include "Board/BoardSquare.h"
+#include "Board/Board.h"
 #include "PC_Chess.h"
 #include "GM_Chess.h"
+#include "ChessPieces/ChessPiece.h"
 #include "Components/BillboardComponent.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Components/AudioComponent.h"
 #include <Kismet/GameplayStatics.h>
 
 ABoardSquare::ABoardSquare()
@@ -12,11 +16,6 @@ ABoardSquare::ABoardSquare()
 	X = 0;
 	Y = 0;
 
-	GetObjectAsset(HighlightMaterial, UMaterialInterface,"/Game/BattleChess/Materials/ML_MarkerHighlight.ML_MarkerHighlight");
-	GetObjectAsset(AttackMaterial, UMaterialInterface,"/Game/BattleChess/Materials/ML_MarkerAttack.ML_MarkerAttack");
-	GetObjectAsset(SelectMaterial, UMaterialInterface,"/Game/BattleChess/Materials/ML_MarkerSelect.ML_MarkerSelect");
-	GetObjectAsset(ChessPieceMaterial, UMaterialInterface,"/Game/BattleChess/Materials/MI_MarkerChessPiece.MI_MarkerChessPiece");
-	GetObjectAsset(ActiveMaterial, UMaterialInterface,"/Game/BattleChess/Materials/MI_MarkerChessPiece.MI_MarkerChessPiece");
 	IsAttackable = false;
 	IsSquareSelected = false;
 	IsHighlighted = false;
@@ -58,6 +57,35 @@ ABoardSquare::ABoardSquare()
 	{
 		Square->SetMaterial(0, MI_WhiteSquare.Object);
 	}
+
+	ExplodeFX = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ExplodeFX"));
+	ExplodeFX->SetupAttachment(Billboard);
+	ExplodeFX->bAutoActivate=false;
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> P_Skill_Telecharge_Shock_Impact_02(TEXT(
+		"/Game/InfinityBladeEffects/Effects/FX_Skill_TeleCharge/P_Skill_Telecharge_Shock_Impact_02.P_Skill_Telecharge_Shock_Impact_02"));
+	if (P_Skill_Telecharge_Shock_Impact_02.Succeeded())
+	{
+		ExplodeFX->SetTemplate(P_Skill_Telecharge_Shock_Impact_02.Object);
+	}
+
+	TeleportFX = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("TeleportFX"));
+	TeleportFX->SetupAttachment(Billboard);
+	TeleportFX->bAutoActivate = false;
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> P_Whirlwind_Lightning_Start_01(TEXT(
+		"/Game/InfinityBladeEffects/Effects/FX_Skill_Whirlwind/P_Whirlwind_Lightning_Start_01.P_Whirlwind_Lightning_Start_01"));
+	if (P_Whirlwind_Lightning_Start_01.Succeeded())
+	{
+		TeleportFX->SetTemplate(P_Whirlwind_Lightning_Start_01.Object);
+	}
+
+	Explosion = CreateDefaultSubobject<UAudioComponent>(TEXT("Explosion"));
+	Explosion->SetupAttachment(Billboard);
+	static ConstructorHelpers::FObjectFinder<USoundBase> Explosion01(TEXT(
+		"/Game/StarterContent/Audio/Explosion01.Explosion01"));
+	if (Explosion01.Succeeded())
+	{
+		Explosion->SetSound(Explosion01.Object);
+	}
 }
 
 void ABoardSquare::OnConstruction(const FTransform& Transform)
@@ -76,11 +104,26 @@ void ABoardSquare::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ABoardSquare::InitEvent()
+{
+	if(!IsValid(BoardRef))
+	{
+		return;
+	}
+	BoardRef->ResetAllSquares.AddDynamic(this,&ThisClass::ResetSquare);
+}
+
+void ABoardSquare::ResetSquare()
+{
+	ResetMarker();
+}
+
 void ABoardSquare::Initialize()
 {
 	SetPlayerControllerRef();
 	SetGameModeRef();
 	SetNotation();
+	InitEvent();
 }
 
 void ABoardSquare::SetPlayerControllerRef()
@@ -127,46 +170,119 @@ void ABoardSquare::SetYValue(int32 Selection, FString& YValue)
 
 void ABoardSquare::SetMarkerColor()
 {
+	if(IsHighlighted)
+	{
+		IsVisible = true;
+		if (IsSquareSelected)
+		{		
+			Marker->SetVectorParameterValueOnMaterials(TEXT("Color"), FVector(FLinearColor::Red));
+		}
+		else if(IsAttackable)
+		{
+			Marker->SetVectorParameterValueOnMaterials(TEXT("Color"), FVector(FLinearColor::Green));
+		}
+		else
+		{
+			Marker->SetVectorParameterValueOnMaterials(TEXT("Color"), FVector(FLinearColor::Blue));
+		}
+	}
+	else if(IsChessPieceSelected)
+	{
+		IsVisible = true;
+		Marker->SetVectorParameterValueOnMaterials(TEXT("Color"), FVector(FColor::Purple.ReinterpretAsLinear()));
+	}
+	else
+	{
+		IsVisible = false;
+		Marker->SetVectorParameterValueOnMaterials(TEXT("Color"), FVector(FLinearColor::Blue));
+	}
+	Marker->SetVisibility(IsVisible);
 }
 
 void ABoardSquare::HightlightMarker()
 {
+	IsHighlighted = true;
+	IsSquareSelected = false;
+	IsAttackable = false;
+	IsChessPieceSelected = false;
+
+	bool hasOccupant = false;
+	HasOccupant(hasOccupant);
+	if(hasOccupant)
+	{
+		IsAttackable = true;
+	}
+	SetMarkerColor();
 }
 
 void ABoardSquare::UnhightlightMarker()
 {
+	IsHighlighted = false;
+	IsSquareSelected = false;
+	IsAttackable = false;
+
+	SetMarkerColor();
 }
 
 void ABoardSquare::SelectMarker()
 {
+	if(IsHighlighted)
+	{
+		IsSquareSelected = true;
+		SetMarkerColor();
+	}
 }
 
 void ABoardSquare::UnselectMarker()
 {
+	IsSquareSelected = false;
+	SetMarkerColor();
 }
 
 void ABoardSquare::ResetMarker()
 {
+	IsHighlighted = false;
+	IsSquareSelected = false;
+	IsAttackable = false;
+	IsVisible = false;
+	IsChessPieceSelected = false;
+
+	SetMarkerColor();
 }
 
 void ABoardSquare::HasOccupant(bool& HasOccupant)
 {
+	HasOccupant=IsValid(OccupantRef);
 }
 
 void ABoardSquare::SetOccupant(AChessPiece* ChessPiece)
 {
+	OccupantRef = ChessPiece;
 }
 
 void ABoardSquare::RemoveOccupant()
 {
+	OccupantRef = nullptr;
 }
 
 void ABoardSquare::GetOccupant(AChessPiece*& Occupant)
 {
+	Occupant = OccupantRef;
 }
 
 void ABoardSquare::SelectOccupant()
 {
+	IsAttackable = false;
+	IsHighlighted = false;
+	IsSquareSelected = false;
+
+	bool hasOccupant=false;
+	HasOccupant(hasOccupant);
+	if(hasOccupant)
+	{
+		IsChessPieceSelected = true;
+		SetMarkerColor();
+	}
 }
 
 void ABoardSquare::GetLocation(FVector& WorldLocation)
@@ -176,8 +292,11 @@ void ABoardSquare::GetLocation(FVector& WorldLocation)
 
 void ABoardSquare::ActivateExplodeFX()
 {
+	ExplodeFX->Activate(true);
+	Explosion->Play();
 }
 
 void ABoardSquare::ActivateTeleportFX()
 {
+	TeleportFX->Activate(true);
 }

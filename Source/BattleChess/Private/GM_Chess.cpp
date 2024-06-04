@@ -131,8 +131,16 @@ void AGM_Chess::GetPlayerByIndex(int32 PlayerIndex, FChessPlayer& Player)
 
 void AGM_Chess::ChangeActivePlayer()
 {
+	PlayerRef->IncrementPlayerMoveCount(ActivePlayer);
 	ActivePlayer = (ActivePlayer + 1)%(int32)EPlayerColor::Max;
 	SetPlayerCamera();
+	EPlayerColor color;
+	GetActivePlayerColor(color);
+	if(color==EPlayerColor::White)
+	{
+		++MoveCount;
+	}
+	PlayerControllerRef->UpdateMainUI();
 }
 
 void AGM_Chess::GetActivePlayerMoveCount(int32& ActivePlayerMoveCount)
@@ -243,32 +251,39 @@ void AGM_Chess::SelectChessPiece(AChessPiece* ChessPiece, int32 X, int32 Y)
 {
 }
 
-void AGM_Chess::GetSelectedChessPiece(AChessPiece*& SelectedChessPiece, bool& IsValid)
+void AGM_Chess::GetSelectedChessPiece(AChessPiece*& SelectedChessPiece, bool& IsValidPiece)
 {
 }
 
-void AGM_Chess::GetSquareLocation(int32 X, int32 Y, FVector& SquareLocation, bool& IsValid)
+void AGM_Chess::GetSquareLocation(int32 X, int32 Y, FVector& SquareLocation, 
+	bool& IsValidLoc)
 {
+	BoardRef->GetSquareLocation(X,Y,SquareLocation,IsValidLoc);
 }
 
 void AGM_Chess::ResetSquares()
 {
+	BoardRef->ResetSquares();
 }
 
-void AGM_Chess::HighllightSquare(int32 X, int32 Y)
+void AGM_Chess::HighlightSquare(int32 X, int32 Y)
 {
+	BoardRef->HighlightSquare(X,Y);
 }
 
 void AGM_Chess::UnhighlightSquares()
 {
+	BoardRef->UnhighlightSquares();
 }
 
 void AGM_Chess::SelectSquare(int32 X, int32 Y)
 {
+	BoardRef->SelectSquare(X,Y);
 }
 
-void AGM_Chess::GetSelectedSquare(ABoardSquare*& SelectedSquare, bool& IsValid)
+ABoardSquare* AGM_Chess::GetSelectedSquare(bool& IsValid)
 {
+	return BoardRef->GetSelectedSquare(IsValid);
 }
 
 void AGM_Chess::GetHightlightedSquares(TArray<ABoardSquare*>& HightlightedSquares)

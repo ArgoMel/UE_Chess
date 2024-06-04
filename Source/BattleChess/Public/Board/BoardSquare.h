@@ -67,21 +67,6 @@ public:
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "GamePlay", meta = (MultiLine = "true"))
-	TObjectPtr<UMaterialInterface> HighlightMaterial;
-	/** Please add a variable description */
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "GamePlay", meta = (MultiLine = "true"))
-	TObjectPtr<UMaterialInterface> AttackMaterial;
-	/** Please add a variable description */
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "GamePlay", meta = (MultiLine = "true"))
-	TObjectPtr<UMaterialInterface> SelectMaterial;
-	/** Please add a variable description */
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "GamePlay", meta = (MultiLine = "true"))
-	TObjectPtr<UMaterialInterface> ChessPieceMaterial;
-	/** Please add a variable description */
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "GamePlay", meta = (MultiLine = "true"))
-	TObjectPtr<UMaterialInterface> ActiveMaterial;
-	/** Please add a variable description */
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "GamePlay", meta = (MultiLine = "true"))
 	bool IsAttackable;
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "GamePlay", meta = (MultiLine = "true"))
@@ -100,6 +85,11 @@ public:
 	bool IsCastling;
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "Event")
+	void InitEvent();
+	UFUNCTION(BlueprintCallable, Category = "Event")
+	void ResetSquare();
+
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 	void Initialize();

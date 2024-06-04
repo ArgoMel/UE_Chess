@@ -32,16 +32,6 @@ public:
 	TObjectPtr<ABoardSquare> SelectedSquare;
 
 	/** Please add a variable description */
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Setup", meta = (MultiLine = "true"))
-	int32 BoardWidth;
-	/** Please add a variable description */
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Setup", meta = (MultiLine = "true"))
-	int32 Min;
-	/** Please add a variable description */
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Setup", meta = (MultiLine = "true"))
-	int32 Max;
-
-	/** Please add a variable description */
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FResetAllSquares);
 	UPROPERTY(BlueprintAssignable, EditDefaultsOnly, Category = "Delegate", meta = (MultiLine = "true"))
 	FResetAllSquares ResetAllSquares;
@@ -62,29 +52,28 @@ public:
 	void HighlightSquare(int32 X, int32 Y);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Square")
-	void UnhightlightSquares();
+	void UnhighlightSquares();
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Square")
-	void GetHightlightedSquares(TArray<ABoardSquare*>& AvailableMoves, 
-		TArray<ABoardSquare*> HightlightedSquares);
+	void GetHightlightedSquares(TArray<ABoardSquare*>& AvailableMoves);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Square")
 	void SelectSquare(int32 X, int32 Y);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Square")
-	void GetSelectedSquare(bool& IsValid, ABoardSquare*& Square);
+	ABoardSquare* GetSelectedSquare(bool& IsExistSquare);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Square")
 	void UnselectAllSquares();
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Square")
-	void GetSquare(int32 X, int32 Y, ABoardSquare*& Square, bool& IsValid);
+	ABoardSquare* GetSquare(int32 X, int32 Y, bool& IsExistSquare);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Square")
-	void GetSquareLocation(int32 X, int32 Y, FVector& SquareLocation, bool& IsValid);
+	void GetSquareLocation(int32 X, int32 Y, FVector& SquareLocation, bool& IsExistSquare);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Square")
-	void IsValidSquare(int32 X, int32 Y, bool& IsValidSquare);
+	void IsValidSquare(int32 X, int32 Y, bool& IsExistSquare);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Square")
 	void MakeSquareIndex(int32 X, int32 Y, int32& Index);

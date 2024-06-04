@@ -175,17 +175,17 @@ public:
 	void SelectChessPiece(AChessPiece* ChessPiece, int32 X, int32 Y);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Game Board")
-	void GetSelectedChessPiece(AChessPiece*& SelectedChessPiece, bool& IsValid);
+	void GetSelectedChessPiece(AChessPiece*& SelectedChessPiece, bool& IsValidPiece);
 
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Square")
-	void GetSquareLocation(int32 X, int32 Y, FVector& SquareLocation, bool& IsValid);
+	void GetSquareLocation(int32 X, int32 Y, FVector& SquareLocation, bool& IsValidLoc);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Square")
 	void ResetSquares();
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Square")
-	void HighllightSquare(int32 X, int32 Y);
+	void HighlightSquare(int32 X, int32 Y);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Square")
 	void UnhighlightSquares();
@@ -194,7 +194,7 @@ public:
 	void SelectSquare(int32 X, int32 Y);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Square")
-	void GetSelectedSquare(ABoardSquare*& SelectedSquare, bool& IsValid);
+	ABoardSquare* GetSelectedSquare(bool& IsValid);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Square")
 	void GetHightlightedSquares(TArray<ABoardSquare*>& HightlightedSquares);
