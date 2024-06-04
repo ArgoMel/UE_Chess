@@ -34,6 +34,8 @@ void AGM_Chess::Initialize()
 	SetPlayerRef();
 	SetBoardRef();
 	SetChessPiecesRef();
+
+	StartGame(FText::GetEmpty(), FText::GetEmpty(), 0, 0);
 }
 
 void AGM_Chess::SetPlayerControllerRef()
@@ -107,18 +109,24 @@ void AGM_Chess::SetPlayerCamera()
 
 void AGM_Chess::GetActivePlayer(FChessPlayer& Player)
 {
+	PlayerRef->GetPlayerByIndex(ActivePlayer, Player);
 }
 
 void AGM_Chess::GetActivePlayerColor(EPlayerColor& ActivePlayerColor)
 {
+	FChessPlayer player;
+	GetActivePlayer(player);
+	ActivePlayerColor = player.Color;
 }
 
 void AGM_Chess::GetPlayerByColor(EPlayerColor PlayerColor, FChessPlayer& Player)
 {
+	PlayerRef->GetPlayerByColor(PlayerColor, Player);
 }
 
 void AGM_Chess::GetPlayerByIndex(int32 PlayerIndex, FChessPlayer& Player)
 {
+	PlayerRef->GetPlayerByIndex(PlayerIndex, Player);
 }
 
 void AGM_Chess::ChangeActivePlayer()
@@ -129,6 +137,9 @@ void AGM_Chess::ChangeActivePlayer()
 
 void AGM_Chess::GetActivePlayerMoveCount(int32& ActivePlayerMoveCount)
 {
+	FChessPlayer tempActivePlayer;
+	GetActivePlayer(tempActivePlayer);
+	ActivePlayerMoveCount = tempActivePlayer.MoveCount;
 }
 
 void AGM_Chess::RotatePlayerCamera(float Axis)
@@ -138,18 +149,27 @@ void AGM_Chess::RotatePlayerCamera(float Axis)
 
 void AGM_Chess::StartGame(FText PlayerAName, FText PlayerBName, int32 PlayerAIndex, int32 PlayerBIndex)
 {
+	SetPlayerCamera();
 }
 
 void AGM_Chess::GetMoveCount(int32& Count)
 {
+	Count = MoveCount;
 }
 
 void AGM_Chess::HasLegalMove(bool& HasLegalMove)
 {
 }
 
-void AGM_Chess::GetLatestMove(EPlayerColor& Color, FText& LatestMove)
+void AGM_Chess::GetLatestMove(EPlayerColor& Color, FString& LatestMove)
 {
+	if(Movements.IsEmpty())
+	{
+		return;
+	}
+	FMoves moves = Movements.Last();
+	CreateNotation(moves, LatestMove);
+	Color = moves.Color;
 }
 
 void AGM_Chess::ActivateExplosionFX(int32 X, int32 Y)
@@ -165,8 +185,12 @@ void AGM_Chess::GetActiveChessPiecesByColor(EPlayerColor Color, TArray<AChessPie
 {
 }
 
-void AGM_Chess::GetGameStatus(bool& IsCheckMate, bool& IsStaleMate, FChessPlayer TempActivePlayer)
+void AGM_Chess::GetGameStatus(bool& IsCheckMate, bool& IsStaleMate)
 {
+	FChessPlayer tempActivePlayer;
+	GetActivePlayer(tempActivePlayer);
+	IsCheckMate = tempActivePlayer.IsInCheckFlag && !tempActivePlayer.HasLegalMoves;
+	IsStaleMate = !tempActivePlayer.HasLegalMoves;
 }
 
 void AGM_Chess::PersistMove(AChessPiece* ChessPiece, bool IsCapture, bool IsCastle, 
@@ -177,16 +201,37 @@ void AGM_Chess::PersistMove(AChessPiece* ChessPiece, bool IsCapture, bool IsCast
 {
 }
 
-void AGM_Chess::CreateNotation(FMoves MoveData, FString& Notation, FString MoveNotation, 
-	FString ChessPiece, FString Square, bool bIsCheck, bool bIsCapture, 
-	bool bIsKingsideCastle, bool bIsQueensideCastle)
+void AGM_Chess::CreateNotation(FMoves MoveData, FString& Notation)
 {
+	Notation = FString::Printf(TEXT("%d: "),MoveData.MoveCount);
+	if(MoveData.IsKingSideCastle)
+	{
+		Notation += TEXT("0-0");
+		return;
+	}
+	if (MoveData.IsQueenSideCastle)
+	{
+		Notation += TEXT("0-0-0");
+		return;
+	}
+	Notation += MoveData.ChessPiece;
+	if (MoveData.IsCapture)
+	{
+		Notation += TEXT("x");
+	}
+	Notation += MoveData.NewSquare;
+	if (MoveData.IsCheck)
+	{
+		Notation += TEXT("+");
+	}
 }
 
-void AGM_Chess::SaveMoveData(int32 Count, EPlayerColor Color, FString ChessPieceNotation, 
-	FString PreviousSquare, FString NewSquare, bool IsCapture, bool IsKingsideCastle, 
-	bool IsQueenSideCastle)
+void AGM_Chess::SaveMoveData(FMoves MoveData)
 {
+	MoveData.IsCheck = false;
+	MoveData.IsCheckMate = false;
+	MoveData.IsStaleMate = false;
+	Movements.Add(MoveData);
 }
 
 void AGM_Chess::AddCheckToLastMoveData()

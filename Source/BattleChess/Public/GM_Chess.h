@@ -139,7 +139,7 @@ public:
 	void HasLegalMove(bool& HasLegalMove);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Game Play")
-	void GetLatestMove(EPlayerColor& Color, FText& LatestMove);
+	void GetLatestMove(EPlayerColor& Color, FString& LatestMove);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
 	void ActivateExplosionFX(int32 X, int32 Y);
@@ -152,7 +152,7 @@ public:
 		TArray<AChessPiece*> ActiveChessPieces);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Game Play")
-	void GetGameStatus(bool& IsCheckMate, bool& IsStaleMate, FChessPlayer TempActivePlayer);
+	void GetGameStatus(bool& IsCheckMate, bool& IsStaleMate);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
 	void PersistMove(AChessPiece* ChessPiece, bool IsCapture, bool IsCastle,
@@ -162,14 +162,10 @@ public:
 		AChessPiece* lChessPiece);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Game Play")
-	void CreateNotation(FMoves MoveData, FString& Notation, FString MoveNotation,
-		FString ChessPiece, FString Square, bool bIsCheck, bool bIsCapture,
-		bool bIsKingsideCastle, bool bIsQueensideCastle);
+	void CreateNotation(FMoves MoveData, FString& Notation);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
-	void SaveMoveData(int32 Count, EPlayerColor Color, FString ChessPieceNotation,
-		FString PreviousSquare, FString NewSquare, bool IsCapture, bool IsKingsideCastle,
-		bool IsQueenSideCastle);
+	void SaveMoveData(FMoves MoveData);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
 	void AddCheckToLastMoveData();
