@@ -16,6 +16,12 @@ public:
 protected:
 	virtual void SetupInputComponent() override;
 
+protected:
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> UIMainClass;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> UIStartClass;
+
 public:
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "References", meta = (MultiLine = "true"))
@@ -29,7 +35,7 @@ public:
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "GamePlay", meta = (MultiLine = "true"))
-	FText Message;
+	FString Message;
 
 protected:
 	UFUNCTION()
@@ -62,5 +68,5 @@ public:
 	void SetPlayerInfoInUI(int32 PlayerIndex);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
-	void SetMessage(FText Msg);
+	void SetMessage(FString Msg);
 };

@@ -52,8 +52,9 @@ namespace EChessInputAction
 	void BindInput_StartOnly(UEnhancedInputComponent* Input, const UInputAction* Action, T* Obj,
 		FuncType StartFunc)
 	{
-		if(!Input)
+		if(!Action)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("UInputAction:%s 없음"), *Action->GetName());
 			return;
 		}
 		if (StartFunc)
@@ -65,8 +66,9 @@ namespace EChessInputAction
 	void BindInput_TriggerOnly(UEnhancedInputComponent* Input, const UInputAction* Action, T* Obj,
 		FuncType TriggerFunc)
 	{
-		if (!Input)
+		if (!Action)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("UInputAction:%s 없음"), *Action->GetName());
 			return;
 		}
 		if (TriggerFunc)
@@ -78,8 +80,9 @@ namespace EChessInputAction
 	void BindInput_StartTriggerComplete(UEnhancedInputComponent* Input, const UInputAction* Action, T* Obj,
 		FuncType StartFunc, FuncType TriggerFunc, FuncType CompleteFunc)
 	{
-		if (!Input)
+		if (!Action)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("UInputAction:%s 없음"), *Action->GetName());
 			return;
 		}
 		if (StartFunc)
@@ -99,8 +102,9 @@ namespace EChessInputAction
 	void BindInput_TriggerComplete(UEnhancedInputComponent* Input, const UInputAction* Action, T* Obj,
 		FuncType StartFunc, FuncType CompleteFunc)
 	{
-		if (!Input)
+		if (!Action)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("UInputAction:%s 없음"), *Action->GetName());
 			return;
 		}
 		if (StartFunc)
@@ -116,8 +120,9 @@ namespace EChessInputAction
 	void BindInput_StartTriggerCompleteCancel(UEnhancedInputComponent* Input, const UInputAction* Action, T* Obj,
 		FuncType StartFunc, FuncType TriggerFunc, FuncType CompleteFunc, FuncType CancelFunc)
 	{
-		if (!Input)
+		if (!Action)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("UInputAction:%s 없음"), *Action->GetName());
 			return;
 		}
 		if (StartFunc)

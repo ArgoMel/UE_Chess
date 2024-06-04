@@ -1,4 +1,4 @@
-#include "PlayerPawn.h"
+ï»¿#include "PlayerPawn.h"
 #include "Components/BillboardComponent.h"
 #include "Camera/CameraComponent.h"
 #include <Kismet/KismetSystemLibrary.h>
@@ -12,7 +12,7 @@ APlayerPawn::APlayerPawn()
 	for (int32 i = 0; i < (int32)EPlayerColor::Max;++i) 
 	{
 		FChessPlayer player;
-		player.Name = FString::Printf(TEXT("ÇÃ·¹ÀÌ¾î%d"),i);
+		player.Name = FString::Printf(TEXT("í”Œë ˆì´ì–´%d"),i);
 		player.Color = (EPlayerColor)i;
 		player.Index = i;
 		Players.Add(player);

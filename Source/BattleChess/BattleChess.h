@@ -2,16 +2,11 @@
 #include "CoreMinimal.h"
 #include "BattleChess.generated.h"
 
-namespace ChessInfo
-{
-	constexpr int32 MaxPlayer = 2;
-}
-
 #pragma region LoadAsset
-/*    Object AssetÀ» ¹Ş½À´Ï´Ù.
-*    RETURN_POINTER : ¹ŞÀ» Æ÷ÀÎÅÍ
-*    CLASS_TYPE : ¹ŞÀ» ¿ÀºêÁ§Æ®ÀÇ Å¬·¡½º
-*    PATH : °æ·Î (TEXT¸¦ ºÙÀÌÁö ¾Ê½À´Ï´Ù.)*/
+/*    Object Assetì„ ë°›ìŠµë‹ˆë‹¤.
+*    RETURN_POINTER : ë°›ì„ í¬ì¸í„°
+*    CLASS_TYPE : ë°›ì„ ì˜¤ë¸Œì íŠ¸ì˜ í´ë˜ìŠ¤
+*    PATH : ê²½ë¡œ (TEXTë¥¼ ë¶™ì´ì§€ ì•ŠìŠµë‹ˆë‹¤.)*/
 #define GetObjectAsset(RETURN_POINTER, CLASS_TYPE, PATH)\
 static ConstructorHelpers::FObjectFinder<CLASS_TYPE> __##RETURN_POINTER(TEXT(PATH));\
 if (__##RETURN_POINTER.Succeeded()) \
@@ -38,10 +33,10 @@ else \
 	}\
 }
 
-/*    Class AssetÀ» ¹Ş½À´Ï´Ù.
-*    RETURN_POINTER : ¹ŞÀ» Æ÷ÀÎÅÍ
-*    CLASS_TYPE : ¹ŞÀ» Å¬·¡½º Å¸ÀÔ
-*    PATH : °æ·Î (TEXT¸¦ ºÙÀÌÁö ¾Ê½À´Ï´Ù.)*/
+/*    Class Assetì„ ë°›ìŠµë‹ˆë‹¤.
+*    RETURN_POINTER : ë°›ì„ í¬ì¸í„°
+*    CLASS_TYPE : ë°›ì„ í´ë˜ìŠ¤ íƒ€ì…
+*    PATH : ê²½ë¡œ (TEXTë¥¼ ë¶™ì´ì§€ ì•ŠìŠµë‹ˆë‹¤.)*/
 #define GetClassAsset(RETURN_POINTER, CLASS_TYPE, PATH)\
 static ConstructorHelpers::FClassFinder<CLASS_TYPE> __##RETURN_POINTER(TEXT(PATH));\
 if (__##RETURN_POINTER.Succeeded()) \

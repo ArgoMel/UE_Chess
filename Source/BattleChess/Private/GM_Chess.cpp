@@ -131,7 +131,7 @@ void AGM_Chess::GetPlayerByIndex(int32 PlayerIndex, FChessPlayer& Player)
 
 void AGM_Chess::ChangeActivePlayer()
 {
-	ActivePlayer = (ActivePlayer + 1)%ChessInfo::MaxPlayer;
+	ActivePlayer = (ActivePlayer + 1)%(int32)EPlayerColor::Max;
 	SetPlayerCamera();
 }
 
@@ -149,6 +149,7 @@ void AGM_Chess::RotatePlayerCamera(float Axis)
 
 void AGM_Chess::StartGame(FText PlayerAName, FText PlayerBName, int32 PlayerAIndex, int32 PlayerBIndex)
 {
+	PlayerControllerRef->SetMainUI();
 	SetPlayerCamera();
 }
 
