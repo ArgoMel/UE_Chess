@@ -145,7 +145,7 @@ public:
 	void ActivateExplosionFX(int32 X, int32 Y);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
-	void ActivateTeleport(int32 X, int32 Y);
+	void ActivateTeleportFX(int32 X, int32 Y);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
 	void GetActiveChessPiecesByColor(EPlayerColor Color, TArray<AChessPiece*>& ChessPieces,
@@ -201,13 +201,13 @@ public:
 
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Occupant")
-	void SetOccupant(AChessPiece* ChessPiece, int32 X, int32 Y, bool& IsValid);
+	void SetOccupant(AChessPiece* ChessPiece, int32 X, int32 Y, bool& IsValidSquare);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Occupant")
-	void RemoveOccupant(int32 X, int32 Y, bool& IsValid);
+	void RemoveOccupant(int32 X, int32 Y, bool& IsValidSquare);
 		/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Occupant")
-	void GetOccupant(int32 X, int32 Y, EPlayerColor Color, AChessPiece*& Occupant,
+	AChessPiece* GetOccupant(int32 X, int32 Y, EPlayerColor Color,
 		bool& IsOccupied, bool& IsOccupiedByFriend, bool& IsValidSquare);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Occupant")

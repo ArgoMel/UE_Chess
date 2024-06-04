@@ -139,7 +139,7 @@ public:
 	void RemoveOccupant();
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Occupants")
-	void GetOccupant(AChessPiece*& Occupant);
+	AChessPiece* GetOccupant();
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Occupants")
 	void SelectOccupant();

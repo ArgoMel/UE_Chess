@@ -265,9 +265,9 @@ void ABoardSquare::RemoveOccupant()
 	OccupantRef = nullptr;
 }
 
-void ABoardSquare::GetOccupant(AChessPiece*& Occupant)
+AChessPiece* ABoardSquare::GetOccupant()
 {
-	Occupant = OccupantRef;
+	return OccupantRef;
 }
 
 void ABoardSquare::SelectOccupant()

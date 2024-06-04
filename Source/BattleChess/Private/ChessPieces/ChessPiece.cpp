@@ -2,6 +2,27 @@
 
 AChessPiece::AChessPiece()
 {
+	Color = EPlayerColor::White;
+	InitialX = 0;
+	InitialY = 0;
+	IsKing = false;
+	IsTeleportable = false;
+
+	X = 0;
+	Y = 0;
+	PreviousX = 0;
+	PreviousY = 0;
+	ChessPieceMoveCount = 0;
+	PlayerMoveCount = 0;
+	IsEnPassant = false;
+	IsInitialMove = false;
+	IsValidMove = false;
+	CanCaptureOpponent = false;
+	IsSuccessfulMove = false;
+	KingIsCastling = false;
+	KingHasCastled = false;
+	KindCanCastle = false;
+
 	PrimaryActorTick.bCanEverTick = false;
 }
 

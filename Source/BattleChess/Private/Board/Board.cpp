@@ -1,5 +1,6 @@
 #include "Board/Board.h"
 #include "Board/BoardSquare.h"
+#include "ChessPieces/ChessPiece.h"
 #include "Components/BillboardComponent.h"
 #include <Kismet/GameplayStatics.h>
 
@@ -205,28 +206,70 @@ void ABoard::ResetSquares()
 
 void ABoard::SelectOccupant(int32 X, int32 Y)
 {
+	bool isExistSquare=false;
+	ABoardSquare* squre= GetSquare(X,Y, isExistSquare);
+	if(isExistSquare)
+	{
+		squre->SelectOccupant();
+	}
 }
 
-void ABoard::SetOccupant(AChessPiece* ChessPiece, int32 X, int32 Y, bool& IsValid)
+void ABoard::SetOccupant(AChessPiece* ChessPiece, int32 X, int32 Y, bool& IsValidSquare)
 {
+	ABoardSquare* squre = GetSquare(X, Y, IsValidSquare);
+	if (IsValidSquare)
+	{
+		squre->SetOccupant(ChessPiece);
+	}
 }
 
-void ABoard::GetOccupant(int32 X, int32 Y, EPlayerColor Color, AChessPiece*& Occupant, bool& IsOccupied, bool& IsOccupiedByFriend, bool& IsValidSquare)
+AChessPiece* ABoard::GetOccupant(int32 X, int32 Y, EPlayerColor Color,
+	bool& IsOccupied, bool& IsOccupiedByFriend, bool& IsValidSquare)
 {
+	ABoardSquare* squre = GetSquare(X, Y, IsValidSquare);
+	if (!IsValidSquare)
+	{
+		return nullptr;
+	}
+	AChessPiece* occupant= squre->GetOccupant();
+	IsOccupied = IsValid(occupant);
+	IsOccupiedByFriend = IsOccupied&& occupant->Color == Color;
+	return occupant;
 }
 
-void ABoard::RemoveOccupant(int32 X, int32 Y, bool& IsValid)
+void ABoard::RemoveOccupant(int32 X, int32 Y, bool& IsValidSquare)
 {
+	ABoardSquare* squre = GetSquare(X, Y, IsValidSquare);
+	if (IsValidSquare)
+	{
+		squre->RemoveOccupant();
+	}
 }
 
 void ABoard::RemoveAllOccupants()
 {
+	for(auto& boardSquare: BoardSquares)
+	{
+		boardSquare->RemoveOccupant();
+	}
 }
 
 void ABoard::ActivateExplosionFX(int32 X, int32 Y)
 {
+	bool isExistSquare = false;
+	ABoardSquare* squre = GetSquare(X, Y, isExistSquare);
+	if (isExistSquare)
+	{
+		squre->ActivateExplodeFX();
+	}
 }
 
 void ABoard::ActivateTeleportFX(int32 X, int32 Y)
 {
+	bool isExistSquare = false;
+	ABoardSquare* squre = GetSquare(X, Y, isExistSquare);
+	if (isExistSquare)
+	{
+		squre->ActivateTeleportFX();
+	}
 }

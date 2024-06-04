@@ -155,7 +155,8 @@ void AGM_Chess::RotatePlayerCamera(float Axis)
 	PlayerRef->RotateCamera(Axis);
 }
 
-void AGM_Chess::StartGame(FText PlayerAName, FText PlayerBName, int32 PlayerAIndex, int32 PlayerBIndex)
+void AGM_Chess::StartGame(FText PlayerAName, FText PlayerBName, int32 PlayerAIndex, 
+	int32 PlayerBIndex)
 {
 	PlayerControllerRef->SetMainUI();
 	SetPlayerCamera();
@@ -183,14 +184,16 @@ void AGM_Chess::GetLatestMove(EPlayerColor& Color, FString& LatestMove)
 
 void AGM_Chess::ActivateExplosionFX(int32 X, int32 Y)
 {
+	BoardRef->ActivateExplosionFX(X,Y);
 }
 
-void AGM_Chess::ActivateTeleport(int32 X, int32 Y)
+void AGM_Chess::ActivateTeleportFX(int32 X, int32 Y)
 {
+	BoardRef->ActivateTeleportFX(X, Y);
 }
 
-void AGM_Chess::GetActiveChessPiecesByColor(EPlayerColor Color, TArray<AChessPiece*>& ChessPieces, 
-	TArray<AChessPiece*> ActiveChessPieces)
+void AGM_Chess::GetActiveChessPiecesByColor(EPlayerColor Color, 
+	TArray<AChessPiece*>& ChessPieces, TArray<AChessPiece*> ActiveChessPieces)
 {
 }
 
@@ -249,10 +252,18 @@ void AGM_Chess::AddCheckToLastMoveData()
 
 void AGM_Chess::SelectChessPiece(AChessPiece* ChessPiece, int32 X, int32 Y)
 {
+	ResetSquares();
+	SelectedPieceRef=nullptr;
+
+	BoardRef->SelectOccupant(X,Y);
+	SelectedPieceRef = ChessPiece;
 }
 
-void AGM_Chess::GetSelectedChessPiece(AChessPiece*& SelectedChessPiece, bool& IsValidPiece)
+void AGM_Chess::GetSelectedChessPiece(AChessPiece*& SelectedChessPiece, 
+	bool& IsValidPiece)
 {
+	IsValidPiece = IsValid(SelectedPieceRef);
+	SelectedChessPiece = SelectedPieceRef;
 }
 
 void AGM_Chess::GetSquareLocation(int32 X, int32 Y, FVector& SquareLocation, 
@@ -290,25 +301,36 @@ void AGM_Chess::GetHightlightedSquares(TArray<ABoardSquare*>& HightlightedSquare
 {
 }
 
-void AGM_Chess::SetOccupant(AChessPiece* ChessPiece, int32 X, int32 Y, bool& IsValid)
+void AGM_Chess::SetOccupant(AChessPiece* ChessPiece, int32 X, int32 Y, 
+	bool& IsValidSquare)
 {
+	BoardRef->SetOccupant(ChessPiece,X,Y, IsValidSquare);
 }
 
-void AGM_Chess::RemoveOccupant(int32 X, int32 Y, bool& IsValid)
+void AGM_Chess::RemoveOccupant(int32 X, int32 Y, bool& IsValidSquare)
 {
+	BoardRef->RemoveOccupant(X, Y, IsValidSquare);
 }
 
-void AGM_Chess::GetOccupant(int32 X, int32 Y, EPlayerColor Color, AChessPiece*& Occupant, 
+AChessPiece* AGM_Chess::GetOccupant(int32 X, int32 Y, EPlayerColor Color,
 	bool& IsOccupied, bool& IsOccupiedByFriend, bool& IsValidSquare)
 {
+	return BoardRef->GetOccupant(X, Y, Color, IsOccupied, IsOccupiedByFriend,IsValidSquare);
 }
 
 void AGM_Chess::SetOccupants()
 {
+	RemoveOccupants();
+	for(auto& chessPiece :ChessPiecesRef)
+	{
+		bool isValidSquare=false;
+		SetOccupant(chessPiece, chessPiece->X, chessPiece->Y, isValidSquare);
+	}
 }
 
 void AGM_Chess::RemoveOccupants()
 {
+	BoardRef->RemoveAllOccupants();
 }
 
 void AGM_Chess::IsActiveKingCheckStatus(bool& isActiveKingInCheck)
