@@ -185,7 +185,8 @@ ABoardSquare* ABoard::GetSquare(int32 X, int32 Y, bool& IsExistSquare)
 	return BoardSquares[index];
 }
 
-void ABoard::GetSquareLocation(int32 X, int32 Y, FVector& SquareLocation, bool& IsExistSquare)
+void ABoard::GetSquareLocation(int32 X, int32 Y, FVector& SquareLocation, 
+	bool& IsExistSquare)
 {
 	ABoardSquare* square= GetSquare(X,Y, IsExistSquare);
 	if(IsExistSquare)
@@ -219,7 +220,8 @@ void ABoard::SelectOccupant(int32 X, int32 Y)
 	}
 }
 
-void ABoard::SetOccupant(AChessPiece* ChessPiece, int32 X, int32 Y, bool& IsValidSquare)
+void ABoard::SetOccupant(AChessPiece* ChessPiece, int32 X, int32 Y, 
+	bool& IsValidSquare)
 {
 	ABoardSquare* squre = GetSquare(X, Y, IsValidSquare);
 	if (IsValidSquare)

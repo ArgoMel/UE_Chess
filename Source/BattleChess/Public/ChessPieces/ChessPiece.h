@@ -189,7 +189,7 @@ public:
 	void ProcessCastleReset();
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void ProcessVirtualMovement(int32 InX, int32 InY, EPlayerColor InColor, int32 TempX, int32 TempY);
+	void ProcessVirtualMovement(int32 InX, int32 InY, EPlayerColor InColor);
 
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Square")
@@ -213,8 +213,8 @@ public:
 		bool& IsEmptySquare);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Square")
-	void HasLegalMove(bool& HasLegalMove, TArray<ABoardSquare*> HightlightedSquares);
+	void HasLegalMove(bool& HasLegalMove);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Square")
-	void IsLegalMove(int32 InX, int32 InY, bool& IsLegalMove, bool IsKingInCheck);
+	void IsLegalMove(int32 InX, int32 InY, bool& IsLegalMove);
 };

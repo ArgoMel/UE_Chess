@@ -162,6 +162,8 @@ void AGM_Chess::GetPlayerByIndex(int32 PlayerIndex, FChessPlayer& Player)
 void AGM_Chess::ChangeActivePlayer()
 {
 	PlayerRef->IncrementPlayerMoveCount(ActivePlayer);
+	PlayerRef->SetKingInCheckFlag(ActivePlayer,false);
+
 	ActivePlayer = (ActivePlayer + 1)%(int32)EPlayerColor::Max;
 	SetPlayerCamera();
 	EPlayerColor color;
@@ -170,6 +172,14 @@ void AGM_Chess::ChangeActivePlayer()
 	{
 		++MoveCount;
 	}
+
+	bool isInCheck=false;
+	EvaluateCheckStatus(isInCheck);
+	PlayerRef->SetKingInCheckFlag(ActivePlayer, isInCheck);
+	AddCheckToLastMoveData();
+	bool hasLegalMove = false;
+	HasLegalMove(hasLegalMove);
+	PlayerRef->SetHasLegalMovesFlag(ActivePlayer, hasLegalMove);
 	PlayerControllerRef->UpdateMainUI();
 }
 
@@ -199,6 +209,20 @@ void AGM_Chess::GetMoveCount(int32& Count)
 
 void AGM_Chess::HasLegalMove(bool& HasLegalMove)
 {
+	EPlayerColor color = EPlayerColor::White;
+	GetActivePlayerColor(color);
+	TArray<AChessPiece*> chessPieces;
+	GetActiveChessPiecesByColor(color, chessPieces);
+	HasLegalMove = false;
+	for(auto& chessPiece: chessPieces)
+	{
+		chessPiece->HasLegalMove(HasLegalMove);
+		if(HasLegalMove)
+		{
+			break;
+		}
+	}
+	UnhighlightSquares();
 }
 
 void AGM_Chess::GetLatestMove(EPlayerColor& Color, FString& LatestMove)
@@ -222,9 +246,20 @@ void AGM_Chess::ActivateTeleportFX(int32 X, int32 Y)
 	BoardRef->ActivateTeleportFX(X, Y);
 }
 
-void AGM_Chess::GetActiveChessPiecesByColor(EPlayerColor Color, 
-	TArray<AChessPiece*>& ChessPieces, TArray<AChessPiece*> ActiveChessPieces)
+void AGM_Chess::GetActiveChessPiecesByColor(EPlayerColor Color,
+	TArray<AChessPiece*>& ChessPieces)
 {
+	TArray<AChessPiece*> activeChessPieces;
+	for (auto& chessPiece : ChessPiecesRef)
+	{
+		if (chessPiece->X > 0&&
+			chessPiece->Y > 0&&
+			chessPiece->Color==Color)
+		{
+			activeChessPieces.Add(chessPiece);
+		}
+	}
+	ChessPieces = activeChessPieces;
 }
 
 void AGM_Chess::GetGameStatus(bool& IsCheckMate, bool& IsStaleMate)
@@ -278,6 +313,11 @@ void AGM_Chess::SaveMoveData(FMoves MoveData)
 
 void AGM_Chess::AddCheckToLastMoveData()
 {
+	if(Movements.IsEmpty())
+	{
+		return;
+	}
+	Movements.Last().IsCheck=true;
 }
 
 void AGM_Chess::SelectChessPiece(AChessPiece* ChessPiece, int32 X, int32 Y)
@@ -329,6 +369,7 @@ ABoardSquare* AGM_Chess::GetSelectedSquare(bool& IsValid)
 
 void AGM_Chess::GetHightlightedSquares(TArray<ABoardSquare*>& HightlightedSquares)
 {
+	BoardRef->GetHightlightedSquares(HightlightedSquares);
 }
 
 void AGM_Chess::SetOccupant(AChessPiece* ChessPiece, int32 X, int32 Y, 

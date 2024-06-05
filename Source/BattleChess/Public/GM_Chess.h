@@ -149,8 +149,7 @@ public:
 	void ActivateTeleportFX(int32 X, int32 Y);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
-	void GetActiveChessPiecesByColor(EPlayerColor Color, TArray<AChessPiece*>& ChessPieces,
-		TArray<AChessPiece*> ActiveChessPieces);
+	void GetActiveChessPiecesByColor(EPlayerColor Color, TArray<AChessPiece*>& ChessPieces);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Game Play")
 	void GetGameStatus(bool& IsCheckMate, bool& IsStaleMate);
