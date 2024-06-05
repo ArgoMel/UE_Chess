@@ -21,8 +21,8 @@ protected:
 
 public:
 	/** Please add a variable description */
-	//UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
-	//TObjectPtr<UAudioComponent> BeginPlay;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
+	TObjectPtr<UAudioComponent> BeginPlayAudio;
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "References", meta = (MultiLine = "true"))

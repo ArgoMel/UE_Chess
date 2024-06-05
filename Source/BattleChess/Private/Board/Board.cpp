@@ -4,7 +4,11 @@
 #include "Components/BillboardComponent.h"
 #include <Kismet/GameplayStatics.h>
 
-#define STARTLOC FVector(-450.,350.,0.);
+#define STARTLOC FVector(-450.,350.,0.)
+#define DeadSlot1LOC FVector(-700.,-350.,-45.)	//8
+#define DeadSlot2LOC FVector(-600.,-350.,-45.)
+#define DeadSlot3LOC FVector(700.,-350.,-45.)
+#define DeadSlot4LOC FVector(600.,-350.,-45.)
 
 constexpr int32 BoardMin = 1;
 constexpr int32 BoardMax = 8;
@@ -39,9 +43,10 @@ void ABoard::Tick(float DeltaTime)
 
 void ABoard::CreateBoard()
 {
+	FVector boardLoc = GetActorLocation();
 	for (int32 x=0;x< BoardMax;++x)
 	{
-		FVector curLoc = STARTLOC;
+		FVector curLoc = STARTLOC+ boardLoc;
 		curLoc.Y -= x * 100.;
 		for (int32 y = 0; y < BoardMax; ++y)
 		{

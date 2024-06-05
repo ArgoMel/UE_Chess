@@ -3,6 +3,7 @@
 #include "PlayerPawn.h"
 #include "Board/Board.h"
 #include "ChessPieces/ChessPiece.h"
+#include "Board/DeadSlot.h"
 #include <Kismet/GameplayStatics.h>
 
 AGM_Chess::AGM_Chess()
@@ -34,6 +35,7 @@ void AGM_Chess::Initialize()
 	SetPlayerRef();
 	SetBoardRef();
 	SetChessPiecesRef();
+	SetupDeadPoolRefs();
 
 	StartGame(FText::GetEmpty(), FText::GetEmpty(), 0, 0);
 }
@@ -92,12 +94,39 @@ void AGM_Chess::SetChessPiecesRef()
 
 void AGM_Chess::SetupDeadPoolRefs()
 {
+	if (!DeadPoolRef.IsEmpty())
+	{
+		return;
+	}
+	TArray<AActor*> actors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADeadSlot::StaticClass(), actors);
+	for (auto& actor : actors)
+	{
+		ADeadSlot* deadSlot = Cast<ADeadSlot>(actor);
+		if (!IsValid(deadSlot))
+		{
+			continue;
+		}
+		DeadPoolRef.Add(deadSlot);
+	}
+	DeadPoolIndex = 0;
 }
 
 void AGM_Chess::ProcessChessPiece(AChessPiece* ChessPiece)
 {
-	AChessPiece* tempChessPiece = ChessPiece;
-	tempChessPiece->Initialize();
+	ChessPiece->Initialize();
+	if(ChessPiece->IsKing)
+	{
+		switch (ChessPiece->Color)
+		{
+		case EPlayerColor::White:
+			WhiteKingRef = ChessPiece;
+			break;
+		case EPlayerColor::Black:
+			BlackKingRef = ChessPiece;
+			break;
+		}
+	}
 }
 
 void AGM_Chess::SetPlayerCamera()
@@ -382,4 +411,9 @@ void AGM_Chess::EvaluationLoop(int32 X, int32 Y, int32 XInc, int32 YInc, EPlayer
 
 void AGM_Chess::CaptureChessPiece(AChessPiece* ChessPiece)
 {
+	FVector deadPoolLoc=DeadPoolRef[DeadPoolIndex]->GetRootComponent()->GetComponentLocation();
+	ChessPiece->GetRootComponent()->SetWorldLocation(deadPoolLoc,false,nullptr,ETeleportType::TeleportPhysics);
+	ChessPiece->X = 0;
+	ChessPiece->Y = 0;
+	++DeadPoolIndex;
 }

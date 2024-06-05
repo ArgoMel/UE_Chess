@@ -1,8 +1,12 @@
 #include "Board/DeadSlot.h"
+#include "Components/BillboardComponent.h"
 
 ADeadSlot::ADeadSlot()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	Billboard = CreateDefaultSubobject<UBillboardComponent>(TEXT("Billboard"));
+	SetRootComponent(Billboard);
 }
 
 void ADeadSlot::BeginPlay()

@@ -13,4 +13,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
+public:
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
+	TObjectPtr<UBillboardComponent> Billboard;
 };
