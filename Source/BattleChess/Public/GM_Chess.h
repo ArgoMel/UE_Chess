@@ -130,7 +130,8 @@ public:
 
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
-	void StartGame(FText PlayerAName, FText PlayerBName, int32 PlayerAIndex, int32 PlayerBIndex);
+	void StartGame(FText PlayerAName, FText PlayerBName, int32 PlayerAIndex, 
+		int32 PlayerBIndex);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Game Play")
 	void GetMoveCount(int32& Count);
@@ -221,38 +222,38 @@ public:
 	void IsActiveKingCheckStatus(bool& isActiveKingInCheck);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "King Evaluations")
-	void EvaluateCheckStatus(bool& IsInCheck, int32 TempX, int32 TempY, EPlayerColor TempColor);
+	void EvaluateCheckStatus(bool& IsInCheck);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "King Evaluations")
 	AChessPiece* GetActiveKing();
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "King Evaluations")
 	void EvaluateDiagonalSquares(int32 X, int32 Y, EPlayerColor Color,
-		bool& IsAttackable, int32 TempX, int32 TempY, EPlayerColor TempColor);
+		bool& IsAttackable);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "King Evaluations")
 	void EvaluateHorizontalSquares(int32 X, int32 Y, EPlayerColor Color,
-		bool& IsAttackable, int32 TempX, int32 TempY, EPlayerColor TempColor);
+		bool& IsAttackable);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "King Evaluations")
 	void EvaluateVerticalSquares(int32 X, int32 Y, EPlayerColor Color, 
-		bool& IsAttackable, int32 TempX, int32 TempY, EPlayerColor TempColor);
+		bool& IsAttackable);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "King Evaluations")
-	void EvaluateForKnights(int32 X, int32 Y, EPlayerColor Color, bool& IsAttackable, 
-		int32 TempX, int32 TempY, EPlayerColor TempColor);
+	void EvaluateForKnights(int32 X, int32 Y, EPlayerColor Color, 
+		bool& IsAttackable);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "King Evaluations")
-	void EvaluateKnightSquare(int32 X, int32 Y, int32 XIncr, int32 YIncr, EPlayerColor Color, 
-		bool& IsAttackable, int32 TempX, int32 TempY, EPlayerColor TempColor);
+	void EvaluateKnightSquare(int32 X, int32 Y, int32 XIncr, int32 YIncr, 
+		EPlayerColor Color, bool& IsAttackable);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "King Evaluations")
-	void EvalScquareForCheckStatus(int32 X, int32 Y, EPlayerColor Color, bool& IsEmpty, 
-		bool& IsCheckable, int32 TempX, int32 TempY, EPlayerColor TempColor, bool IsInCheck);
+	void EvaluateSquareForCheckStatus(int32 X, int32 Y, EPlayerColor Color, 
+		bool& IsEmpty, bool& IsCheckable);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "King Evaluations")
-	void EvaluationLoop(int32 X, int32 Y, int32 XInc, int32 YInc, EPlayerColor Color, 
-		bool& IsCheckablePath, int32 TempX, int32 TempY, bool CanContinue, bool IsCheckable);
+	void EvaluationLoop(int32 X, int32 Y, int32 XInc, int32 YInc, 
+		EPlayerColor Color, bool& IsCheckablePath);
 
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Capture")

@@ -2,6 +2,7 @@
 #include "PC_Chess.h"
 #include "PlayerPawn.h"
 #include "Board/Board.h"
+#include "Board/BoardSquare.h"
 #include "ChessPieces/ChessPiece.h"
 #include "Board/DeadSlot.h"
 #include <Kismet/GameplayStatics.h>
@@ -369,7 +370,7 @@ void AGM_Chess::IsActiveKingCheckStatus(bool& isActiveKingInCheck)
 	isActiveKingInCheck = player.IsInCheckFlag;
 }
 
-void AGM_Chess::EvaluateCheckStatus(bool& IsInCheck, int32 TempX, int32 TempY, EPlayerColor TempColor)
+void AGM_Chess::EvaluateCheckStatus(bool& IsInCheck)
 {
 }
 
@@ -384,39 +385,128 @@ AChessPiece* AGM_Chess::GetActiveKing()
 	return BlackKingRef;
 }
 
-void AGM_Chess::EvaluateDiagonalSquares(int32 X, int32 Y, EPlayerColor Color, bool& IsAttackable, 
-	int32 TempX, int32 TempY, EPlayerColor TempColor)
+void AGM_Chess::EvaluateDiagonalSquares(int32 X, int32 Y, EPlayerColor Color,
+	bool& IsAttackable)
+{
+	EvaluationLoop(X,Y,1,1,Color,IsAttackable);
+	if(IsAttackable)
+	{
+		return;
+	}
+	EvaluationLoop(X, Y, -1, -1, Color, IsAttackable);
+	if (IsAttackable)
+	{
+		return;
+	}
+	EvaluationLoop(X, Y, 1, -1, Color, IsAttackable);
+	if (IsAttackable)
+	{
+		return;
+	}
+	EvaluationLoop(X, Y, -1, 1, Color, IsAttackable);
+}
+
+void AGM_Chess::EvaluateHorizontalSquares(int32 X, int32 Y, EPlayerColor Color, 
+	bool& IsAttackable)
+{
+	EvaluationLoop(X, Y, 0, 1, Color, IsAttackable);
+	if (IsAttackable)
+	{
+		return;
+	}
+	EvaluationLoop(X, Y, 0, -1, Color, IsAttackable);
+}
+
+void AGM_Chess::EvaluateVerticalSquares(int32 X, int32 Y, EPlayerColor Color, 
+	bool& IsAttackable)
+{
+	EvaluationLoop(X, Y, 1, 0, Color, IsAttackable);
+	if (IsAttackable)
+	{
+		return;
+	}
+	EvaluationLoop(X, Y, -1, 0, Color, IsAttackable);
+}
+
+void AGM_Chess::EvaluateForKnights(int32 X, int32 Y, EPlayerColor Color, 
+	bool& IsAttackable)
 {
 }
 
-void AGM_Chess::EvaluateHorizontalSquares(int32 X, int32 Y, EPlayerColor Color, bool& IsAttackable, 
-	int32 TempX, int32 TempY, EPlayerColor TempColor)
+void AGM_Chess::EvaluateKnightSquare(int32 X, int32 Y, int32 XIncr, int32 YIncr, 
+	EPlayerColor Color, bool& IsAttackable)
 {
 }
 
-void AGM_Chess::EvaluateVerticalSquares(int32 X, int32 Y, EPlayerColor Color, bool& IsAttackable, 
-	int32 TempX, int32 TempY, EPlayerColor TempColor)
+void AGM_Chess::EvaluateSquareForCheckStatus(int32 X, int32 Y, EPlayerColor Color, 
+	bool& IsEmpty, bool& IsCheckable)
 {
+	bool isOccupied=false;
+	bool isOccupiedByFriend=false;
+	bool isValidSquare=false;
+	AChessPiece* piece=BoardRef->GetOccupant(X,Y,Color, isOccupied, isOccupiedByFriend, isValidSquare);
+	if(isValidSquare)
+	{
+		if(isOccupied)
+		{
+			if (isOccupiedByFriend)
+			{
+				IsEmpty = false;
+				IsCheckable = false;
+			}
+			else if (piece->GetClass()->ImplementsInterface(UChessPieceInterface::StaticClass()))
+			{
+				bool isKing = false;
+				IChessPieceInterface::Execute_ShowPossibleMoves(piece, isKing);
+				AChessPiece* king= GetActiveKing();
+				bool isExistSquare = false;
+				ABoardSquare* square= BoardRef->GetSquare(king->X, king->Y, isExistSquare);
+				if (isExistSquare) 
+				{
+					AttackingPieceRef= piece;
+					BoardRef->ResetSquares();
+					IsEmpty = false;
+					IsCheckable = square->IsAttackable;
+				}
+				else
+				{
+					BoardRef->ResetSquares();
+					IsEmpty = false;
+					IsCheckable = false;
+				}
+			}
+		}
+		else
+		{
+			IsEmpty = true;
+			IsCheckable = false;
+		}
+	}
+	else
+	{
+		IsEmpty = false;
+		IsCheckable = false;
+	}
 }
 
-void AGM_Chess::EvaluateForKnights(int32 X, int32 Y, EPlayerColor Color, bool& IsAttackable, 
-	int32 TempX, int32 TempY, EPlayerColor TempColor)
+void AGM_Chess::EvaluationLoop(int32 X, int32 Y, int32 XInc, int32 YInc, 
+	EPlayerColor Color, bool& IsCheckablePath)
 {
-}
+	int32 tempX = X;
+	int32 tempY = Y;
+	bool canContinue = true;
 
-void AGM_Chess::EvaluateKnightSquare(int32 X, int32 Y, int32 XIncr, int32 YIncr, EPlayerColor Color, 
-	bool& IsAttackable, int32 TempX, int32 TempY, EPlayerColor TempColor)
-{
-}
-
-void AGM_Chess::EvalScquareForCheckStatus(int32 X, int32 Y, EPlayerColor Color, bool& IsEmpty, 
-	bool& IsCheckable, int32 TempX, int32 TempY, EPlayerColor TempColor, bool IsInCheck)
-{
-}
-
-void AGM_Chess::EvaluationLoop(int32 X, int32 Y, int32 XInc, int32 YInc, EPlayerColor Color, 
-	bool& IsCheckablePath, int32 TempX, int32 TempY, bool CanContinue, bool IsCheckable)
-{
+	while(canContinue)
+	{
+		tempX+=XInc;
+		tempY += YInc;
+		bool isEmpty = false;
+		EvaluateSquareForCheckStatus(tempX, tempY,Color, canContinue, IsCheckablePath);
+		if(IsCheckablePath)
+		{
+			canContinue = false;
+		}
+	}
 }
 
 void AGM_Chess::CaptureChessPiece(AChessPiece* ChessPiece)
