@@ -32,7 +32,7 @@ AChessPiece::AChessPiece()
 	IsSuccessfulMove = false;
 	KingIsCastling = false;
 	KingHasCastled = false;
-	KindCanCastle = false;
+	KingCanCastle = false;
 
 	Billboard = CreateDefaultSubobject<UBillboardComponent>(TEXT("Billboard"));
 	SetRootComponent(Billboard);
@@ -46,15 +46,10 @@ AChessPiece::AChessPiece()
 	{
 		ChessPiece->SetStaticMesh(SM_Pawn.Object);
 	}
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MI_WhiteSquare(TEXT(
-		"/Game/BattleChess/Materials/MI_WhitePiece.MI_WhitePiece"));
-	if (MI_WhiteSquare.Succeeded())
-	{
-		ChessPiece->SetMaterial(0, MI_WhiteSquare.Object);
-	}
 
 	SlideAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("Slide"));
 	SlideAudio->SetupAttachment(Billboard);
+	SlideAudio->bAutoActivate=false;
 	static ConstructorHelpers::FObjectFinder<USoundBase> Teleport_Mode_Entered(TEXT(
 		"/Game/BattleChess/Audio/Teleport_Mode_Entered.Teleport_Mode_Entered"));
 	if (Teleport_Mode_Entered.Succeeded())
@@ -64,6 +59,7 @@ AChessPiece::AChessPiece()
 
 	TeleportAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("Teleport"));
 	TeleportAudio->SetupAttachment(Billboard);
+	TeleportAudio->bAutoActivate = false;
 	static ConstructorHelpers::FObjectFinder<USoundBase> Teleport(TEXT(
 		"/Game/BattleChess/Audio/Teleport.Teleport"));
 	if (Teleport.Succeeded())
@@ -73,6 +69,7 @@ AChessPiece::AChessPiece()
 
 	ButtonClickAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("ButtonClick"));
 	ButtonClickAudio->SetupAttachment(Billboard);
+	ButtonClickAudio->bAutoActivate = false;
 	static ConstructorHelpers::FObjectFinder<USoundBase> Flashlight_Switch(TEXT(
 		"/Engine/VREditor/Sounds/UI/Flashlight_Switch.Flashlight_Switch"));
 	if (Flashlight_Switch.Succeeded())
@@ -137,6 +134,10 @@ void AChessPiece::MoveChessPiece(FVector NewLoc)
 
 void AChessPiece::Initialize()
 {
+	SetGameModeRef();
+	SetPlayerControllerRef();
+
+	MoveToDefault();
 }
 
 void AChessPiece::MoveToDefault()
@@ -201,42 +202,213 @@ void AChessPiece::IsPlayerPiece(bool& IsPlayerPiece)
 
 void AChessPiece::ProcessMovement(bool& Success)
 {
+	CanCaptureOpponent = false;
+	IsValidMove = false;
+	IsSuccessfulMove = false;
+	KingHasCastled = false;
+
+	ProcessOpponentToCapture(CanCaptureOpponent);
+	ProcessTemporaryMove();
+
+	ProcessKingCheckStatus(IsValidMove);
+
+	if(IsValidMove)
+	{
+		if (!IsKing)
+		{
+			if (IsTeleportable)
+			{
+				ProcessTeleport(IsSuccessfulMove);
+			}
+			else
+			{
+				ProcessMove(IsSuccessfulMove);
+			}
+			ProcessOpponentCapture();
+			ProcessPostMove();
+		}
+		else
+		{
+			ProcessCastle(IsSuccessfulMove);
+			if(KingIsCastling)
+			{
+				bool tempB = false;
+				ProcessPostCastle(tempB);
+			}
+			else
+			{
+				ProcessOpponentCapture();
+				ProcessPostMove();
+			}
+		}
+		GameModeRef->PersistMove(this, CanCaptureOpponent, KingHasCastled, Y < 5);
+		PlayerControllerRef->UpdateMainUI();
+		KingHasCastled = false;
+	}
+	else if(!IsKing)
+	{
+		ProcessMovementReset();
+	}
+	else
+	{
+		ProcessCastleReset();
+	}
+	Success = IsSuccessfulMove;
 }
 
 void AChessPiece::ProcessTemporaryMove()
 {
+	bool isValidSquare = false;
+	ABoardSquare* square = GameModeRef->GetSelectedSquare(isValidSquare);
+	if (!isValidSquare)
+	{
+		return;
+	}
+
+	PreviousX = X;
+	PreviousY = Y;
+	X = square->X;
+	Y = square->Y;
+
+	GameModeRef->RemoveOccupant(PreviousX, PreviousY, isValidSquare);
+	if (!isValidSquare)
+	{
+		return;
+	}
+	GameModeRef->SetOccupant(this,X,Y, isValidSquare);
 }
 
-void AChessPiece::ProcessOpponentToCapture(bool& CanCapture, int32 TempX, int32 TempY)
+void AChessPiece::ProcessOpponentToCapture(bool& CanCapture)
 {
+	CanCapture = false;
+	int32 tempX = 0;
+	int32 tempY=0;
+	bool isValidSquare = false;
+	ABoardSquare* square = GameModeRef->GetSelectedSquare(isValidSquare);
+	if(isValidSquare)
+	{
+		tempX=square->X;
+		tempY=square->Y;
+		bool isOccupied = false;
+		bool isOccupiedByFriend = false;
+		AChessPiece* piece=
+			GameModeRef->GetOccupant(tempX, tempY,Color, isOccupied, isOccupiedByFriend,isValidSquare);
+		if(isValidSquare)
+		{
+			if (isOccupied&&
+				!isOccupiedByFriend)
+			{
+				OpponentRef = piece;
+				CanCapture = true;
+			}
+			else if(IsEnPassant)
+			{
+				OpponentRef = nullptr;
+			}
+		}
+	}
 }
 
-void AChessPiece::ProcessKingCheckStatus(bool& IsValid)
+void AChessPiece::ProcessKingCheckStatus(bool& IsValidKing)
 {
+	bool isInCheck = false;
+	GameModeRef->EvaluateCheckStatus(isInCheck);
+	if(isInCheck)
+	{
+		PlayerControllerRef->SetMessage(TEXT("유효하지않은 움직임"));
+		IsValidKing = false;
+	}
+	else
+	{
+		PlayerControllerRef->SetMessage(TEXT(""));
+		if(IsEnPassant)
+		{
+			PlayerControllerRef->SetMessage(TEXT("En Passant"));
+			IsValidKing = false;
+		}
+		else
+		{
+			IsValidKing = true;
+		}
+	}
 }
 
 void AChessPiece::ProcessMove(bool& Success)
 {
+	FVector squareLoc;
+	GameModeRef->GetSquareLocation(X,Y, squareLoc, Success);
+	if(Success)
+	{
+		MoveChessPiece(squareLoc);
+	}
 }
 
 void AChessPiece::ProcessCastle(bool& Success)
 {
+	KingIsCastling = false;
+	if((Y == 3||Y == 7)&&
+		KingCanCastle)
+	{ 
+		KingIsCastling = true;
+		ProcessTeleport(Success);
+		int32 occupantY = 1;
+		int32 offset = 1;
+		if(Y>5)
+		{
+			offset = -1;
+			occupantY = 8;
+		}
+		bool isOccupied = false;
+		bool isOccupiedByFriend = false;
+		bool isValidSquare = false;
+		AChessPiece* piece =
+			GameModeRef->GetOccupant(X, occupantY, Color, isOccupied, isOccupiedByFriend, isValidSquare);
+		piece->PreviousY = piece->Y;
+		piece->Y = Y+offset;
+		piece->PreviousX = piece->X;
+		PlayerControllerRef->SetMessage(TEXT("Castling"));
+		piece->ProcessTeleport(Success);
+		KingHasCastled = true;
+	}
+	else
+	{
+		ProcessMove(Success);
+		KingIsCastling = false;
+	}
 }
 
 void AChessPiece::ProcessTeleport(bool& Success)
 {
+	TeleportAudio->Play();
+	FVector squareLoc;
+	GameModeRef->GetSquareLocation(X,Y, squareLoc, Success);
+	if(Success)
+	{
+		Billboard->SetWorldLocation(squareLoc,false,nullptr,ETeleportType::TeleportPhysics);
+		GameModeRef->ActivateTeleportFX(X,Y);
+	}
 }
 
 void AChessPiece::ProcessPostMove()
 {
+	GameModeRef->SetOccupants();
+	GameModeRef->ResetSquares();
+	IsInitialMove = false;
 }
 
 void AChessPiece::ProcessPostCastle(bool HasCastled)
 {
+	ProcessPostMove();
+	IsInitialMove = false;
 }
 
 void AChessPiece::ProcessOpponentCapture()
 {
+	if(CanCaptureOpponent)
+	{
+		GameModeRef->ActivateExplosionFX(OpponentRef->X, OpponentRef->Y);
+		GameModeRef->CaptureChessPiece(OpponentRef);
+	}
 }
 
 void AChessPiece::ProcessMovementReset()
@@ -249,6 +421,25 @@ void AChessPiece::ProcessMovementReset()
 
 void AChessPiece::ProcessCastleReset()
 {
+	ProcessMovementReset();
+	if(KingIsCastling)
+	{
+		bool isOccupied = false;
+		bool isOccupiedByFriend = false;
+		bool isValidSquare = false;
+		AChessPiece* piece = nullptr;
+		if (Y>5)
+		{
+			piece= GameModeRef->GetOccupant(
+				X,8,Color, isOccupied, isOccupiedByFriend, isValidSquare);
+		}
+		else
+		{
+			piece = GameModeRef->GetOccupant(
+				X, 1, Color, isOccupied, isOccupiedByFriend, isValidSquare);
+		}
+		piece->ProcessMovementReset();
+	}
 }
 
 void AChessPiece::ProcessVirtualMovement(int32 InX, int32 InY, EPlayerColor InColor)

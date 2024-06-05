@@ -106,7 +106,7 @@ public:
 	bool KingHasCastled;
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Game Play", meta = (MultiLine = "true"))
-	bool KindCanCastle;
+	bool KingCanCastle;
 
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Reference", meta = (MultiLine = "true"))
@@ -159,10 +159,10 @@ public:
 	void ProcessTemporaryMove();
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void ProcessOpponentToCapture(bool& CanCapture, int32 TempX, int32 TempY);
+	void ProcessOpponentToCapture(bool& CanCapture);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void ProcessKingCheckStatus(bool& IsValid);
+	void ProcessKingCheckStatus(bool& IsValidKing);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void ProcessMove(bool& Success);

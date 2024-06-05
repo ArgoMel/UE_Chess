@@ -77,6 +77,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Game Play", meta = (MultiLine = "true"))
 	int32 DeadPoolIndex;
 
+private:
+	UFUNCTION()
+	void DelayChangeActivePlayer();
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Event")
 	void ProcessMove();
@@ -155,11 +159,8 @@ public:
 	void GetGameStatus(bool& IsCheckMate, bool& IsStaleMate);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
-	void PersistMove(AChessPiece* ChessPiece, bool IsCapture, bool IsCastle,
-		bool IsQueenSideCastle, FString ChessPieceNotation, FString CaptureNotation,
-		FString SquareNotation, FString CheckNotation, FString FinalNotation,
-		bool bIsCapture, bool bIsCastle, bool bIsQueenSideCastle, bool bIsInCheck,
-		AChessPiece* lChessPiece);
+	void PersistMove(AChessPiece* ChessPiece, bool IsCapture, 
+		bool IsCastle, bool IsQueenSideCastle);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Game Play")
 	void CreateNotation(FMoves MoveData, FString& Notation);
@@ -175,7 +176,7 @@ public:
 	void SelectChessPiece(AChessPiece* ChessPiece, int32 X, int32 Y);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Game Board")
-	void GetSelectedChessPiece(AChessPiece*& SelectedChessPiece, bool& IsValidPiece);
+	AChessPiece* GetSelectedChessPiece(bool& IsValidPiece);
 
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Square")

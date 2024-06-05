@@ -30,6 +30,7 @@ ABoardSquare::ABoardSquare()
 	Marker = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Marker"));
 	Marker->SetupAttachment(Billboard);
 	Marker->SetVisibility(false);
+	Marker->SetRelativeLocation(FVector(0., 0., 2.));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> MarkerMesh(TEXT(
 		"/Engine/BasicShapes/Plane.Plane"));
 	if (MarkerMesh.Succeeded())
@@ -80,6 +81,7 @@ ABoardSquare::ABoardSquare()
 
 	Explosion = CreateDefaultSubobject<UAudioComponent>(TEXT("Explosion"));
 	Explosion->SetupAttachment(Billboard);
+	Explosion->bAutoActivate = false;
 	static ConstructorHelpers::FObjectFinder<USoundBase> Explosion01(TEXT(
 		"/Game/StarterContent/Audio/Explosion01.Explosion01"));
 	if (Explosion01.Succeeded())

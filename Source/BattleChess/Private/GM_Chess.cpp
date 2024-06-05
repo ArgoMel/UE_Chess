@@ -25,9 +25,30 @@ void AGM_Chess::BeginPlay()
 	Initialize();
 }
 
-void AGM_Chess::ProcessMove()
+void AGM_Chess::DelayChangeActivePlayer()
 {
 	ChangeActivePlayer();
+	PlayerControllerRef->SetMessage(TEXT(""));
+	PlayerControllerRef->UpdateMainUI();
+}
+
+void AGM_Chess::ProcessMove()
+{
+	bool isValidPiece = false;
+	AChessPiece* piece=	GetSelectedChessPiece(isValidPiece);
+	if (isValidPiece)
+	{
+		piece->ProcessMovement(isValidPiece);
+		if (isValidPiece)
+		{
+			FTimerHandle tempTimer;
+			GetWorld()->GetTimerManager().SetTimer(tempTimer,this,&ThisClass::DelayChangeActivePlayer,3.f);
+		}
+		else
+		{
+			PlayerControllerRef->UpdateMainUI();
+		}
+	}
 }
 
 void AGM_Chess::Initialize()
@@ -270,12 +291,20 @@ void AGM_Chess::GetGameStatus(bool& IsCheckMate, bool& IsStaleMate)
 	IsStaleMate = !tempActivePlayer.HasLegalMoves;
 }
 
-void AGM_Chess::PersistMove(AChessPiece* ChessPiece, bool IsCapture, bool IsCastle, 
-	bool IsQueenSideCastle, FString ChessPieceNotation, FString CaptureNotation, 
-	FString SquareNotation, FString CheckNotation, FString FinalNotation, 
-	bool bIsCapture, bool bIsCastle, bool bIsQueenSideCastle, bool bIsInCheck, 
-	AChessPiece* lChessPiece)
+void AGM_Chess::PersistMove(AChessPiece* ChessPiece, bool IsCapture, 
+	bool IsCastle, bool IsQueenSideCastle)
 {
+	FMoves moves;
+	moves.MoveCount = MoveCount;
+	moves.Color = ChessPiece->Color;
+	moves.ChessPiece = ChessPiece->Notation;
+	bool isExistSquare = false;
+	moves.PreviousSquare = BoardRef->GetSquare(ChessPiece->PreviousX, ChessPiece->PreviousY, isExistSquare)->Notation;
+	moves.NewSquare = BoardRef->GetSquare(ChessPiece->X, ChessPiece->Y, isExistSquare)->Notation;
+	moves.IsCapture= IsCastle;
+	moves.IsKingSideCastle = IsCastle && !IsQueenSideCastle;
+	moves.IsQueenSideCastle = IsCastle && IsQueenSideCastle;
+	SaveMoveData(moves);
 }
 
 void AGM_Chess::CreateNotation(FMoves MoveData, FString& Notation)
@@ -329,11 +358,10 @@ void AGM_Chess::SelectChessPiece(AChessPiece* ChessPiece, int32 X, int32 Y)
 	SelectedPieceRef = ChessPiece;
 }
 
-void AGM_Chess::GetSelectedChessPiece(AChessPiece*& SelectedChessPiece, 
-	bool& IsValidPiece)
+AChessPiece* AGM_Chess::GetSelectedChessPiece(bool& IsValidPiece)
 {
 	IsValidPiece = IsValid(SelectedPieceRef);
-	SelectedChessPiece = SelectedPieceRef;
+	return SelectedPieceRef;
 }
 
 void AGM_Chess::GetSquareLocation(int32 X, int32 Y, FVector& SquareLocation, 

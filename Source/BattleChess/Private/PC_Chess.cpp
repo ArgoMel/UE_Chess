@@ -1,4 +1,4 @@
-﻿#include "PC_Chess.h"
+#include "PC_Chess.h"
 #include "GM_Chess.h"
 #include "UI/UI_Main.h"
 #include "UI/UI_Start.h"
@@ -7,6 +7,9 @@
 
 APC_Chess::APC_Chess()
 {
+	bShowMouseCursor = true;
+	bEnableClickEvents = true;
+
 	GetClassAsset(UIMainClass, UUserWidget, "/Game/BattleChess/UI/WP_Main.WP_Main_C");
 	GetClassAsset(UIStartClass, UUserWidget, "/Game/BattleChess/UI/WP_Start.WP_Start_C");
 }
@@ -35,7 +38,10 @@ void APC_Chess::CameraRotationTriggered(const FInputActionValue& Value)
 
 void APC_Chess::Initialize()
 {
+	SetShowMouseCursor(true);
+
 	SetGameModeRef();
+	SetMainUI();
 }
 
 void APC_Chess::SetGameModeRef()
@@ -66,7 +72,6 @@ void APC_Chess::SetMainUI()
 	}
 	UIMainRef->AddToViewport();
 	UIMainRef->OpenUI();
-	UpdateMainUI();
 }
 
 void APC_Chess::SetStartUI()
