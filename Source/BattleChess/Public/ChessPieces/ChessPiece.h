@@ -1,6 +1,7 @@
 #pragma once
 #include "../BattleChess.h"
 #include "GameFramework/Actor.h"
+#include "ChessPieces/ChessPieceInterface.h"
 #include "ChessPiece.generated.h"
 
 class UTimelineComponent;
@@ -10,30 +11,37 @@ class ABoardSquare;
 
 UCLASS()
 class BATTLECHESS_API AChessPiece : public AActor
+	,public IChessPieceInterface
 {
 	GENERATED_BODY()
 public:	
 	AChessPiece();
 protected:
+	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
+
+protected:
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Timeline")
+	TObjectPtr<UCurveFloat> NewLocAlphaCurve;
+	FVector mNewLoc;
 
 public:
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
-	TObjectPtr<UAudioComponent> ButtonClick;
-	/** Please add a variable description */
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
-	TObjectPtr<UAudioComponent> Teleport;
-	/** Please add a variable description */
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
-	TObjectPtr<UAudioComponent> Slide;
+	TObjectPtr<UBillboardComponent> Billboard;
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
 	TObjectPtr<UStaticMeshComponent> ChessPiece;
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
-	TObjectPtr<UBillboardComponent> Billboard;
+	TObjectPtr<UAudioComponent> SlideAudio;
+	/** Please add a variable description */
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
+	TObjectPtr<UAudioComponent> TeleportAudio;
+	/** Please add a variable description */
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
+	TObjectPtr<UAudioComponent> ButtonClickAudio;
 	/** Please add a variable description */
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Component")
 	TObjectPtr<UTimelineComponent> ChessPieceMovement;
@@ -110,14 +118,16 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Reference", meta = (MultiLine = "true"))
 	TObjectPtr<AChessPiece> OpponentRef;
 
-	/** Please add a variable description */
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "디폴트", meta = (MultiLine = "true"))
-	TObjectPtr<UMaterialInstance> LightColor;
-	/** Please add a variable description */
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "디폴트", meta = (MultiLine = "true"))
-	TObjectPtr<UMaterialInstance> DarkColor;
+private:
+	UFUNCTION()
+	void OnChessPieceClicked(AActor* TouchedActor, FKey ButtonPressed);
+	UFUNCTION()
+	void UpdateNewLocAlpha(float Alpha);
 
 public:
+	UFUNCTION(BlueprintCallable, Category = "Event")
+	void MoveChessPiece(FVector NewLoc);
+
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 	void Initialize();

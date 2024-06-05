@@ -1,0 +1,1 @@
+#include "ChessPieces/ChessPieceInterface.h"

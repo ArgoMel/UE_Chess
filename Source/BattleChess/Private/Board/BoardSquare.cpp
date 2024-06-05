@@ -37,7 +37,7 @@ ABoardSquare::ABoardSquare()
 		Marker->SetStaticMesh(MarkerMesh.Object);
 	}
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> ML_MarkerHighlight(TEXT(
-		"/Game/BattleChess/Materials/ML_MarkerHighlight.ML_MarkerHighlight"));
+		"/Game/BattleChess/Materials/MI_MarkerHighlight.MI_MarkerHighlight"));
 	if (ML_MarkerHighlight.Succeeded())
 	{
 		Marker->SetMaterial(0, ML_MarkerHighlight.Object);
