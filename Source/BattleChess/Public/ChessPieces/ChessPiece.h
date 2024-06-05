@@ -206,8 +206,7 @@ public:
 	void HighlightDiagonalSquares(EPlayerColor InColor, EPlayerColor TempColor, int32 TempX, int32 TempY);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Square")
-	void HighlightPotentialSquare(int32 InX, int32 InY, EPlayerColor InColor, bool& CanContinueLoop,
-		int32 TempX, int32 TempY);
+	void HighlightPotentialSquare(int32 InX, int32 InY, EPlayerColor InColor, bool& CanContinueLoop);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Square")
 	void CanHighlightSquare(int32 InX, int32 InY, EPlayerColor InColor, bool& CanHightlightSquare,

@@ -224,7 +224,7 @@ public:
 	void EvaluateCheckStatus(bool& IsInCheck, int32 TempX, int32 TempY, EPlayerColor TempColor);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "King Evaluations")
-	void GetActiveKing(AChessPiece*& ActiveKing);
+	AChessPiece* GetActiveKing();
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "King Evaluations")
 	void EvaluateDiagonalSquares(int32 X, int32 Y, EPlayerColor Color,

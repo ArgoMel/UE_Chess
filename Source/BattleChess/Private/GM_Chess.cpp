@@ -364,14 +364,24 @@ void AGM_Chess::RemoveOccupants()
 
 void AGM_Chess::IsActiveKingCheckStatus(bool& isActiveKingInCheck)
 {
+	FChessPlayer player;
+	PlayerRef->GetPlayerByIndex(ActivePlayer, player);
+	isActiveKingInCheck = player.IsInCheckFlag;
 }
 
 void AGM_Chess::EvaluateCheckStatus(bool& IsInCheck, int32 TempX, int32 TempY, EPlayerColor TempColor)
 {
 }
 
-void AGM_Chess::GetActiveKing(AChessPiece*& ActiveKing)
+AChessPiece* AGM_Chess::GetActiveKing()
 {
+	EPlayerColor color = EPlayerColor::White;
+	GetActivePlayerColor(color);
+	if(color==EPlayerColor::White)
+	{
+		return WhiteKingRef;
+	}
+	return BlackKingRef;
 }
 
 void AGM_Chess::EvaluateDiagonalSquares(int32 X, int32 Y, EPlayerColor Color, bool& IsAttackable, 

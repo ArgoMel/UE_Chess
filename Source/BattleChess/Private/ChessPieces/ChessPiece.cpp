@@ -273,8 +273,14 @@ void AChessPiece::HighlightDiagonalSquares(EPlayerColor InColor, EPlayerColor Te
 }
 
 void AChessPiece::HighlightPotentialSquare(int32 InX, int32 InY, EPlayerColor InColor,
-	bool& CanContinueLoop, int32 TempX, int32 TempY)
+	bool& CanContinueLoop)
 {
+	bool canHighlightSquare = false;
+	CanHighlightSquare(InX, InY,InColor, canHighlightSquare, CanContinueLoop);
+	if(canHighlightSquare)
+	{
+		GameModeRef->HighlightSquare(InX,InY);
+	}
 }
 
 void AChessPiece::CanHighlightSquare(int32 InX, int32 InY, EPlayerColor InColor,
