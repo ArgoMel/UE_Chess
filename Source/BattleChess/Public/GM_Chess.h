@@ -134,8 +134,7 @@ public:
 
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Game Play")
-	void StartGame(FText PlayerAName, FText PlayerBName, int32 PlayerAIndex, 
-		int32 PlayerBIndex);
+	void StartGame(FText PlayerAName, FText PlayerBName);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Game Play")
 	void GetMoveCount(int32& Count);
@@ -223,6 +222,8 @@ public:
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "King Evaluations")
 	void EvaluateCheckStatus(bool& IsInCheck);
+	UFUNCTION(BlueprintCallable, Category = "King Evaluations")
+	void CheckStatus(int32 X,int32 Y,EPlayerColor Color, bool& IsInCheck);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "King Evaluations")
 	AChessPiece* GetActiveKing();

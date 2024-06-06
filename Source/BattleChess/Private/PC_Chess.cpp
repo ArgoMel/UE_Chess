@@ -41,7 +41,7 @@ void APC_Chess::Initialize()
 	SetShowMouseCursor(true);
 
 	SetGameModeRef();
-	SetMainUI();
+	SetStartUI();
 }
 
 void APC_Chess::SetGameModeRef()
@@ -72,6 +72,7 @@ void APC_Chess::SetMainUI()
 	}
 	UIMainRef->AddToViewport();
 	UIMainRef->OpenUI();
+	UpdateMainUI();
 }
 
 void APC_Chess::SetStartUI()
@@ -96,6 +97,14 @@ void APC_Chess::SetStartUI()
 
 void APC_Chess::HideStartUI()
 {
+	if(IsValid(UIStartRef))
+	{
+		UIStartRef->SetVisibility(ESlateVisibility::Collapsed);
+	}
+	else
+	{
+		SetStartUI();
+	}
 }
 
 void APC_Chess::UpdateMainUI()

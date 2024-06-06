@@ -99,11 +99,17 @@ void ABoardSquare::OnConstruction(const FTransform& Transform)
 void ABoardSquare::BeginPlay()
 {
 	Super::BeginPlay();
+	OnClicked.AddDynamic(this, &ThisClass::OnBoardSquareClicked);
 }
 
 void ABoardSquare::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void ABoardSquare::OnBoardSquareClicked(AActor* TouchedActor, FKey ButtonPressed)
+{
+	GameModeRef->SelectSquare(X,Y);
 }
 
 void ABoardSquare::InitEvent()
@@ -148,6 +154,10 @@ void ABoardSquare::SetGameModeRef()
 
 void ABoardSquare::SetSquareColor()
 {
+	if(!IsValid(Square))
+	{
+		return;
+	}
 	FLinearColor color;
 	switch (SquareColor)
 	{
@@ -164,10 +174,6 @@ void ABoardSquare::SetSquareColor()
 void ABoardSquare::SetNotation()
 {
 	Notation = FString::Chr(Y + 65)+FString::FormatAsNumber(X);
-}
-
-void ABoardSquare::SetYValue(int32 Selection, FString& YValue)
-{
 }
 
 void ABoardSquare::SetMarkerColor()

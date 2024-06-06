@@ -1,14 +1,13 @@
 #include "Board/Board.h"
 #include "Board/BoardSquare.h"
 #include "ChessPieces/ChessPiece.h"
+#include "Board/DeadSlot.h"
 #include "Components/BillboardComponent.h"
 #include <Kismet/GameplayStatics.h>
 
 #define STARTLOC FVector(-450.,350.,0.)
-#define DeadSlot1LOC FVector(-700.,-350.,-45.)	//8
-#define DeadSlot2LOC FVector(-600.,-350.,-45.)
-#define DeadSlot3LOC FVector(700.,-350.,-45.)
-#define DeadSlot4LOC FVector(600.,-350.,-45.)
+#define DeadSlotBlackLOC FVector(-700.,-450.,-45.)
+#define DeadSlotWhiteLOC FVector(600.,-450.,-45.)
 
 constexpr int32 BoardMin = 1;
 constexpr int32 BoardMax = 8;
@@ -43,6 +42,18 @@ void ABoard::Tick(float DeltaTime)
 
 void ABoard::CreateBoard()
 {
+	TArray<AActor*> actors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABoardSquare::StaticClass(), actors);
+	for (auto& actor : actors)
+	{
+		actor->Destroy();
+	}
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADeadSlot::StaticClass(), actors);
+	for (auto& actor : actors)
+	{
+		actor->Destroy();
+	}
+
 	FVector boardLoc = GetActorLocation();
 	for (int32 x=0;x< BoardMax;++x)
 	{
@@ -52,7 +63,6 @@ void ABoard::CreateBoard()
 		{
 			curLoc.X += 100.;
 			FActorSpawnParameters spawnParams;
-			spawnParams.bDeferConstruction = true;
 			ABoardSquare* boardSquare = 
 				GetWorld()->SpawnActor<ABoardSquare>(curLoc, FRotator::ZeroRotator,spawnParams);
 			if(!IsValid(boardSquare))
@@ -68,6 +78,44 @@ void ABoard::CreateBoard()
 				boardSquare->SetSquareColor();
 			}
 			boardSquare->AttachToComponent(Billboard,
+				FAttachmentTransformRules::KeepWorldTransform);
+		}
+	}
+	
+	for (int32 x = 0; x < 2; ++x)
+	{
+		FVector curLoc = DeadSlotBlackLOC + boardLoc;
+		curLoc.X += x * 100.;
+		for (int32 y = 0; y < BoardMax; ++y)
+		{
+			curLoc.Y += 100.;
+			FActorSpawnParameters spawnParams;
+			ADeadSlot* deadSlot =
+				GetWorld()->SpawnActor<ADeadSlot>(curLoc, FRotator::ZeroRotator, spawnParams);
+			if (!IsValid(deadSlot))
+			{
+				continue;
+			}
+			deadSlot->AttachToComponent(Billboard,
+				FAttachmentTransformRules::KeepWorldTransform);
+		}
+	}
+
+	for (int32 x = 0; x < 2; ++x)
+	{
+		FVector curLoc = DeadSlotWhiteLOC + boardLoc;
+		curLoc.X += x * 100.;
+		for (int32 y = 0; y < BoardMax; ++y)
+		{
+			curLoc.Y += 100.;
+			FActorSpawnParameters spawnParams;
+			ADeadSlot* deadSlot =
+				GetWorld()->SpawnActor<ADeadSlot>(curLoc, FRotator::ZeroRotator, spawnParams);
+			if (!IsValid(deadSlot))
+			{
+				continue;
+			}
+			deadSlot->AttachToComponent(Billboard,
 				FAttachmentTransformRules::KeepWorldTransform);
 		}
 	}
@@ -110,6 +158,7 @@ void ABoard::HighlightSquare(int32 X, int32 Y)
 	{
 		SelectedSquare->HightlightMarker();
 	}
+	SelectedSquare = nullptr;
 }
 
 void ABoard::UnhighlightSquares()

@@ -5,6 +5,7 @@
 #include "Board/BoardSquare.h"
 #include "ChessPieces/ChessPiece.h"
 #include "Board/DeadSlot.h"
+#include "Components/AudioComponent.h"
 #include <Kismet/GameplayStatics.h>
 
 AGM_Chess::AGM_Chess()
@@ -17,6 +18,15 @@ AGM_Chess::AGM_Chess()
 	ActivePlayer = 0;
 	MoveCount = 0;
 	DeadPoolIndex = 0;
+
+	BeginPlayAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("BeginPlayAudio"));
+	SetRootComponent(BeginPlayAudio);
+	static ConstructorHelpers::FObjectFinder<USoundBase> Starter_Music_Cue(TEXT(
+		"/Game/StarterContent/Audio/Starter_Music_Cue.Starter_Music_Cue"));
+	if (Starter_Music_Cue.Succeeded())
+	{
+		BeginPlayAudio->SetSound(Starter_Music_Cue.Object);
+	}
 }
 
 void AGM_Chess::BeginPlay()
@@ -42,7 +52,7 @@ void AGM_Chess::ProcessMove()
 		if (isValidPiece)
 		{
 			FTimerHandle tempTimer;
-			GetWorld()->GetTimerManager().SetTimer(tempTimer,this,&ThisClass::DelayChangeActivePlayer,3.f);
+			GetWorld()->GetTimerManager().SetTimer(tempTimer,this,&ThisClass::DelayChangeActivePlayer,2.f);
 		}
 		else
 		{
@@ -58,8 +68,6 @@ void AGM_Chess::Initialize()
 	SetBoardRef();
 	SetChessPiecesRef();
 	SetupDeadPoolRefs();
-
-	StartGame(FText::GetEmpty(), FText::GetEmpty(), 0, 0);
 }
 
 void AGM_Chess::SetPlayerControllerRef()
@@ -197,11 +205,12 @@ void AGM_Chess::ChangeActivePlayer()
 	bool isInCheck=false;
 	EvaluateCheckStatus(isInCheck);
 	PlayerRef->SetKingInCheckFlag(ActivePlayer, isInCheck);
-	AddCheckToLastMoveData();
-	bool hasLegalMove = false;
-	HasLegalMove(hasLegalMove);
-	PlayerRef->SetHasLegalMovesFlag(ActivePlayer, hasLegalMove);
-	PlayerControllerRef->UpdateMainUI();
+
+	//AddCheckToLastMoveData();
+	//bool hasLegalMove = false;
+	//HasLegalMove(hasLegalMove);
+	//PlayerRef->SetHasLegalMovesFlag(ActivePlayer, hasLegalMove);
+	//PlayerControllerRef->UpdateMainUI();
 }
 
 void AGM_Chess::GetActivePlayerMoveCount(int32& ActivePlayerMoveCount)
@@ -216,10 +225,20 @@ void AGM_Chess::RotatePlayerCamera(float Axis)
 	PlayerRef->RotateCamera(Axis);
 }
 
-void AGM_Chess::StartGame(FText PlayerAName, FText PlayerBName, int32 PlayerAIndex, 
-	int32 PlayerBIndex)
+void AGM_Chess::StartGame(FText PlayerAName, FText PlayerBName)
 {
+	ActivePlayer = FMath::RandRange(0, 1);
+	int32 playerAIndex=1;
+	int32 playerBIndex=0;
+	if(ActivePlayer==1)
+	{
+		playerAIndex = 0;
+		playerBIndex = 1;
+	}
+	PlayerRef->SetPlayerName(playerAIndex, PlayerAName.ToString());
+	PlayerRef->SetPlayerName(playerBIndex, PlayerBName.ToString());
 	PlayerControllerRef->SetMainUI();
+	PlayerControllerRef->HideStartUI();
 	SetPlayerCamera();
 }
 
@@ -441,6 +460,28 @@ void AGM_Chess::IsActiveKingCheckStatus(bool& isActiveKingInCheck)
 
 void AGM_Chess::EvaluateCheckStatus(bool& IsInCheck)
 {
+	AChessPiece* piece= GetActiveKing();
+	CheckStatus(piece->X, piece->Y, piece->Color, IsInCheck);
+}
+
+void AGM_Chess::CheckStatus(int32 X, int32 Y, EPlayerColor Color, bool& IsInCheck)
+{
+	EvaluateDiagonalSquares(X, Y, Color, IsInCheck);
+	if (IsInCheck)
+	{
+		return;
+	}
+	EvaluateHorizontalSquares(X, Y, Color, IsInCheck);
+	if (IsInCheck)
+	{
+		return;
+	}
+	EvaluateVerticalSquares(X, Y, Color, IsInCheck);
+	if (IsInCheck)
+	{
+		return;
+	}
+	EvaluateForKnights(X, Y, Color, IsInCheck);
 }
 
 AChessPiece* AGM_Chess::GetActiveKing()
@@ -500,11 +541,53 @@ void AGM_Chess::EvaluateVerticalSquares(int32 X, int32 Y, EPlayerColor Color,
 void AGM_Chess::EvaluateForKnights(int32 X, int32 Y, EPlayerColor Color, 
 	bool& IsAttackable)
 {
+	EvaluateKnightSquare(X, Y, 2, 1, Color, IsAttackable);
+	if (IsAttackable)
+	{
+		return;
+	}
+	EvaluateKnightSquare(X, Y, 2, -1, Color, IsAttackable);
+	if (IsAttackable)
+	{
+		return;
+	}
+	EvaluateKnightSquare(X, Y, -2, 1, Color, IsAttackable);
+	if (IsAttackable)
+	{
+		return;
+	}
+	EvaluateKnightSquare(X, Y, -2, -1, Color, IsAttackable);
+	if (IsAttackable)
+	{
+		return;
+	}
+	EvaluateKnightSquare(X, Y, 1, 2, Color, IsAttackable);
+	if (IsAttackable)
+	{
+		return;
+	}
+	EvaluateKnightSquare(X, Y, 1, -2, Color, IsAttackable);
+	if (IsAttackable)
+	{
+		return;
+	}
+	EvaluateKnightSquare(X, Y, -1, 2, Color, IsAttackable);
+	if (IsAttackable)
+	{
+		return;
+	}
+	EvaluateKnightSquare(X, Y, -1, -2, Color, IsAttackable);
 }
 
 void AGM_Chess::EvaluateKnightSquare(int32 X, int32 Y, int32 XIncr, int32 YIncr, 
 	EPlayerColor Color, bool& IsAttackable)
 {
+	int32 tempX = X+XIncr;
+	int32 tempY = Y+YIncr;
+	bool isOccupied = false;
+	bool isOccupiedByFriend = false;
+ 	AChessPiece* piece= GetOccupant(tempX,tempY,Color, isOccupied, isOccupiedByFriend, IsAttackable);
+	IsAttackable = IsAttackable && isOccupied && !isOccupiedByFriend&& piece->Notation==TEXT("N");
 }
 
 void AGM_Chess::EvaluateSquareForCheckStatus(int32 X, int32 Y, EPlayerColor Color, 
@@ -533,15 +616,15 @@ void AGM_Chess::EvaluateSquareForCheckStatus(int32 X, int32 Y, EPlayerColor Colo
 				if (isExistSquare) 
 				{
 					AttackingPieceRef= piece;
-					BoardRef->ResetSquares();
 					IsEmpty = false;
 					IsCheckable = square->IsAttackable;
+					BoardRef->ResetSquares();
 				}
 				else
 				{
-					BoardRef->ResetSquares();
 					IsEmpty = false;
 					IsCheckable = false;
+					BoardRef->ResetSquares();
 				}
 			}
 		}
@@ -571,10 +654,6 @@ void AGM_Chess::EvaluationLoop(int32 X, int32 Y, int32 XInc, int32 YInc,
 		tempY += YInc;
 		bool isEmpty = false;
 		EvaluateSquareForCheckStatus(tempX, tempY,Color, canContinue, IsCheckablePath);
-		if(IsCheckablePath)
-		{
-			canContinue = false;
-		}
 	}
 }
 

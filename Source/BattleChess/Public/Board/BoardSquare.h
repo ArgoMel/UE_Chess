@@ -84,6 +84,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "GamePlay", meta = (MultiLine = "true"))
 	bool IsCastling;
 
+private:
+	UFUNCTION()
+	void OnBoardSquareClicked(AActor* TouchedActor, FKey ButtonPressed);
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Event")
 	void InitEvent();
@@ -105,9 +109,6 @@ public:
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 	void SetNotation();
-	/** Please add a function description */
-	UFUNCTION(BlueprintPure, Category = "Setup")
-	void SetYValue(int32 Selection, FString& YValue);
 
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Hightlight")

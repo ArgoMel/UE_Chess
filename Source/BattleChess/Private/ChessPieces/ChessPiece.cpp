@@ -157,6 +157,10 @@ void AChessPiece::MoveToDefault()
 
 void AChessPiece::SetChessPieceColor()
 {
+	if (!IsValid(ChessPiece))
+	{
+		return;
+	}
 	FLinearColor color;
 	switch (Color)
 	{
@@ -209,6 +213,11 @@ void AChessPiece::ProcessMovement(bool& Success)
 
 	ProcessOpponentToCapture(CanCaptureOpponent);
 	ProcessTemporaryMove();
+	if(!IsValidMove)
+	{
+		Success = IsValidMove;
+		return;
+	}
 
 	ProcessKingCheckStatus(IsValidMove);
 
@@ -258,9 +267,8 @@ void AChessPiece::ProcessMovement(bool& Success)
 
 void AChessPiece::ProcessTemporaryMove()
 {
-	bool isValidSquare = false;
-	ABoardSquare* square = GameModeRef->GetSelectedSquare(isValidSquare);
-	if (!isValidSquare)
+	ABoardSquare* square = GameModeRef->GetSelectedSquare(IsValidMove);
+	if (!IsValidMove)
 	{
 		return;
 	}
@@ -270,12 +278,12 @@ void AChessPiece::ProcessTemporaryMove()
 	X = square->X;
 	Y = square->Y;
 
-	GameModeRef->RemoveOccupant(PreviousX, PreviousY, isValidSquare);
-	if (!isValidSquare)
+	GameModeRef->RemoveOccupant(PreviousX, PreviousY, IsValidMove);
+	if (!IsValidMove)
 	{
 		return;
 	}
-	GameModeRef->SetOccupant(this,X,Y, isValidSquare);
+	GameModeRef->SetOccupant(this,X,Y, IsValidMove);
 }
 
 void AChessPiece::ProcessOpponentToCapture(bool& CanCapture)
@@ -470,25 +478,99 @@ void AChessPiece::ProcessVirtualMovement(int32 InX, int32 InY, EPlayerColor InCo
 	}
 }
 
+void AChessPiece::HasLegalMove(bool& HasLegalMove)
+{
+	GameModeRef->UnhighlightSquares();
+	if (GetClass()->ImplementsInterface(UChessPieceInterface::StaticClass()))
+	{
+		bool isKing = false;
+		IChessPieceInterface::Execute_ShowPossibleMoves(this, isKing);
+		if(isKing)
+		{
+			HasLegalMove = IsSafeMoveForKing();		
+		}
+		else
+		{
+			HasLegalMove = IsSafeMove();
+		}
+	}
+}
+
+void AChessPiece::IsLegalMove(int32 InX, int32 InY, bool& IsLegalMove)
+{
+	ProcessVirtualMovement(InX, InY, Color);
+	bool IsKingInCheck = false;
+	GameModeRef->EvaluateCheckStatus(IsKingInCheck);
+	ProcessMovementReset();
+	IsLegalMove = !IsKingInCheck;
+}
+
+bool AChessPiece::IsSafeMove()
+{
+	bool isSafeMove = false;
+	TArray<ABoardSquare*> hightlightedSquares;
+	GameModeRef->GetHightlightedSquares(hightlightedSquares);
+	GameModeRef->UnhighlightSquares();
+	for (auto& hightlightedSquare : hightlightedSquares)
+	{
+		IsLegalMove(hightlightedSquare->X, hightlightedSquare->Y, isSafeMove);
+		if (isSafeMove)
+		{
+			break;
+		}
+	}
+	return isSafeMove;
+}
+
+bool AChessPiece::IsSafeMoveForKing()
+{
+	bool isSafeMove = false;
+	TArray<ABoardSquare*> hightlightedSquares;
+	GameModeRef->GetHightlightedSquares(hightlightedSquares);
+	GameModeRef->UnhighlightSquares();
+	for (auto& hightlightedSquare : hightlightedSquares)
+	{
+		GameModeRef->CheckStatus(hightlightedSquare->X, hightlightedSquare->Y,Color,isSafeMove);
+		if (isSafeMove)
+		{
+			break;
+		}
+	}
+	return isSafeMove;
+}
+
 void AChessPiece::HighlightLoopSequence(int32 InX, int32 InY, EPlayerColor InColor,
-	int32 XIncr, int32 YIncr, EPlayerColor TempColor, int32 TempX, int32 TempY, 
-	bool CanContinue)
+	int32 XIncr, int32 YIncr)
 {
+	int32 tempX= InX;
+	int32 tempY = InY;
+	bool canContinue=true;
+	while(canContinue)
+	{
+		tempX+= XIncr;
+		tempY+= YIncr;
+		HighlightPotentialSquare(tempX,tempY,InColor, canContinue);
+	}
 }
 
-void AChessPiece::HighlightHorizontalSquares(EPlayerColor InColor, EPlayerColor TempColor,
-	int32 TempX, int32 TempY)
+void AChessPiece::HighlightHorizontalSquares(EPlayerColor InColor)
 {
+	HighlightLoopSequence(X,Y, InColor,0,1);
+	HighlightLoopSequence(X,Y, InColor,0,-1);
 }
 
-void AChessPiece::HighlightVerticalSquares(EPlayerColor InColor, EPlayerColor TempColor,
-	int32 TempX, int32 TempY)
+void AChessPiece::HighlightVerticalSquares(EPlayerColor InColor)
 {
+	HighlightLoopSequence(X, Y, InColor, 1, 0);
+	HighlightLoopSequence(X, Y, InColor, -1, 0);
 }
 
-void AChessPiece::HighlightDiagonalSquares(EPlayerColor InColor, EPlayerColor TempColor,
-	int32 TempX, int32 TempY)
+void AChessPiece::HighlightDiagonalSquares(EPlayerColor InColor)
 {
+	HighlightLoopSequence(X, Y, InColor, 1, 1);
+	HighlightLoopSequence(X, Y, InColor, -1, -1);
+	HighlightLoopSequence(X, Y, InColor, 1, -1);
+	HighlightLoopSequence(X, Y, InColor, -1, 1);
 }
 
 void AChessPiece::HighlightPotentialSquare(int32 InX, int32 InY, EPlayerColor InColor,
@@ -535,35 +617,4 @@ void AChessPiece::CanHighlightSquare(int32 InX, int32 InY, EPlayerColor InColor,
 		CanHightlightSquare = false;
 		IsEmptySquare = false;
 	}
-}
-
-void AChessPiece::HasLegalMove(bool& HasLegalMove)
-{
-	GameModeRef->UnhighlightSquares();
-	if (GetClass()->ImplementsInterface(UChessPieceInterface::StaticClass()))
-	{
-		bool isKing = false;
-		IChessPieceInterface::Execute_ShowPossibleMoves(this, isKing);
-	}
-	TArray<ABoardSquare*> hightlightedSquares;
-	GameModeRef->GetHightlightedSquares(hightlightedSquares);
-	GameModeRef->UnhighlightSquares();
-	HasLegalMove = false;
-	for(auto& hightlightedSquare:hightlightedSquares)
-	{
-		IsLegalMove(hightlightedSquare->X, hightlightedSquare->Y, HasLegalMove);
-		if(HasLegalMove)
-		{
-			break;
-		}
-	}
-}
-
-void AChessPiece::IsLegalMove(int32 InX, int32 InY, bool& IsLegalMove)
-{
-	ProcessVirtualMovement(InX, InY,Color);
-	bool IsKingInCheck = false;
-	GameModeRef->EvaluateCheckStatus(IsKingInCheck);
-	ProcessMovementReset();
-	IsLegalMove = !IsKingInCheck;
 }

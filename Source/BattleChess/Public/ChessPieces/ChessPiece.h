@@ -190,31 +190,36 @@ public:
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void ProcessVirtualMovement(int32 InX, int32 InY, EPlayerColor InColor);
+	/** Please add a function description */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void HasLegalMove(bool& HasLegalMove);
+	/** Please add a function description */
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void IsLegalMove(int32 InX, int32 InY, bool& IsLegalMove);
+	UFUNCTION(BlueprintPure, Category = "Movement")
+	bool IsSafeMove();
+	UFUNCTION(BlueprintPure, Category = "Movement")
+	bool IsSafeMoveForKing();
 
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Square")
-	void HighlightLoopSequence(int32 InX, int32 InY, EPlayerColor InColor, int32 XIncr, int32 YIncr,
-		EPlayerColor TempColor, int32 TempX, int32 TempY, bool CanContinue);
+	void HighlightLoopSequence(int32 InX, int32 InY, EPlayerColor InColor, 
+		int32 XIncr, int32 YIncr);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Square")
-	void HighlightHorizontalSquares(EPlayerColor InColor, EPlayerColor TempColor, int32 TempX, int32 TempY);
+	void HighlightHorizontalSquares(EPlayerColor InColor);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Square")
-	void HighlightVerticalSquares(EPlayerColor InColor, EPlayerColor TempColor, int32 TempX, int32 TempY);
+	void HighlightVerticalSquares(EPlayerColor InColor);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Square")
-	void HighlightDiagonalSquares(EPlayerColor InColor, EPlayerColor TempColor, int32 TempX, int32 TempY);
+	void HighlightDiagonalSquares(EPlayerColor InColor);
 	/** Please add a function description */
 	UFUNCTION(BlueprintCallable, Category = "Square")
-	void HighlightPotentialSquare(int32 InX, int32 InY, EPlayerColor InColor, bool& CanContinueLoop);
+	void HighlightPotentialSquare(int32 InX, int32 InY, EPlayerColor InColor, 
+		bool& CanContinueLoop);
 	/** Please add a function description */
 	UFUNCTION(BlueprintPure, Category = "Square")
-	void CanHighlightSquare(int32 InX, int32 InY, EPlayerColor InColor, bool& CanHightlightSquare,
-		bool& IsEmptySquare);
-	/** Please add a function description */
-	UFUNCTION(BlueprintCallable, Category = "Square")
-	void HasLegalMove(bool& HasLegalMove);
-	/** Please add a function description */
-	UFUNCTION(BlueprintCallable, Category = "Square")
-	void IsLegalMove(int32 InX, int32 InY, bool& IsLegalMove);
+	void CanHighlightSquare(int32 InX, int32 InY, EPlayerColor InColor, 
+		bool& CanHightlightSquare, bool& IsEmptySquare);
 };
